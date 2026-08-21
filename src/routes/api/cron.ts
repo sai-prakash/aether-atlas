@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { getSql } from "@/lib/db";
+import { getSql, SetupRequiredError } from "@/lib/db";
 import { ensureCatalog } from "@/lib/catalog/seed";
 import { PULSE } from "@/lib/ingest/budget";
 import { claimPulse, runIngest } from "@/lib/ingest/run";
@@ -32,6 +32,9 @@ export const Route = createFileRoute("/api/cron")({
           const result = await runIngest(sql, { runId: claimed.runId });
           return Response.json({ ok: true, skipped: false, ...result });
         } catch (err) {
+          if (err instanceof SetupRequiredError) {
+            return Response.json({ ok: false, error: err.message }, { status: 503 });
+          }
           const message = err instanceof Error ? err.message : "cron failed";
           return Response.json({ ok: false, error: message }, { status: 500 });
         }

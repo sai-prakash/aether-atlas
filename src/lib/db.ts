@@ -1,22 +1,25 @@
 import { pendingMigrations } from "../../scripts/migration-plan.mjs";
+import { hostedOnVercel, resolveDatabaseUrl } from "../../scripts/db-url.mjs";
+import { SetupRequiredError } from "./setup-error";
+
+export { SetupRequiredError, isSetupRequiredError } from "./setup-error";
 
 /** Which database backend is active. */
-export type DbSource = "neon" | "pglite";
+export type DbSource = "neon" | "pglite" | "none";
 
 // An empty/whitespace DATABASE_URL (an easy misconfig in deploy UIs) must mean
 // "unset" — otherwise production would silently run on the PGLite fallback.
-const rawDatabaseUrl =
-  typeof process !== "undefined" ? process.env.DATABASE_URL : undefined;
+// Neon / Vercel Storage may inject POSTGRES_URL instead of DATABASE_URL.
 const databaseUrl =
-  rawDatabaseUrl && rawDatabaseUrl.trim() ? rawDatabaseUrl : undefined;
+  typeof process !== "undefined" ? resolveDatabaseUrl(process.env) : undefined;
+const onVercel = typeof process !== "undefined" && hostedOnVercel(process.env);
 
 /**
- * Active backend: real **Neon** when `DATABASE_URL` is set (deployed / configured
- * sandbox), otherwise a local embedded **PGLite** (Postgres compiled to WASM) so
- * the app has a working database even with nothing configured — the live preview
- * included. Swap in Neon later by just setting `DATABASE_URL`; no code changes.
+ * Active backend: real **Neon** when a Postgres URL is set. Local preview uses
+ * embedded **PGLite**. Vercel without a URL is `none` — never boot PGLite in
+ * the lambda (the wasm payload is not shipped there).
  */
-export const dbSource: DbSource = databaseUrl ? "neon" : "pglite";
+export const dbSource: DbSource = databaseUrl ? "neon" : onVercel ? "none" : "pglite";
 
 /**
  * Minimal shared SQL surface, satisfied by both Neon and PGLite. Both the
@@ -85,6 +88,44 @@ function toSql(run: Run): Sql {
   return sql;
 }
 
+function migrationFiles(): Record<string, string> {
+  return import.meta.glob("/migrations/*.sql", {
+    query: "?raw",
+    import: "default",
+    eager: true,
+  }) as Record<string, string>;
+}
+
+async function applyNeonMigrations(pool: import("pg").Pool): Promise<void> {
+  const client = await pool.connect();
+  try {
+    await client.query(
+      "create table if not exists _migrations (name text primary key, applied_at timestamptz not null default now())",
+    );
+    const applied = (await client.query("select name from _migrations")).rows.map(
+      (r: { name: string }) => r.name,
+    );
+    const migrations = migrationFiles();
+    for (const { name, path } of pendingMigrations(Object.keys(migrations), applied)) {
+      try {
+        await client.query("BEGIN");
+        await client.query(migrations[path]);
+        await client.query("insert into _migrations (name) values ($1)", [name]);
+        await client.query("COMMIT");
+      } catch (err) {
+        try {
+          await client.query("ROLLBACK");
+        } catch {
+          // keep original
+        }
+        throw err;
+      }
+    }
+  } finally {
+    client.release();
+  }
+}
+
 function createNeonSql(): Promise<Sql> {
   globalRef.__pgSqlPromise__ ??= (async () => {
     // Regular Postgres driver: node-postgres (`pg`) — works directly with Neon's
@@ -93,7 +134,13 @@ function createNeonSql(): Promise<Sql> {
     types.setTypeParser(OID_INT8, Number);
     types.setTypeParser(OID_DATE, identity);
     types.setTypeParser(OID_INTERVAL, identity);
-    const pool = new Pool({ connectionString: databaseUrl });
+    const pool = new Pool({
+      connectionString: databaseUrl,
+      max: 1,
+      connectionTimeoutMillis: 12_000,
+      idleTimeoutMillis: 10_000,
+    });
+    await applyNeonMigrations(pool);
     return toSql(async <T>(text: string, params: unknown[]) => {
       const res = await pool.query(text, params);
       return res.rows as T[];
@@ -137,11 +184,7 @@ async function createPgliteSql(): Promise<Sql> {
   // passes serialized on a global chain so concurrent callers never
   // double-apply.
   const migrate = async (): Promise<void> => {
-    const migrations = import.meta.glob("/migrations/*.sql", {
-      query: "?raw",
-      import: "default",
-      eager: true,
-    }) as Record<string, string>;
+    const migrations = migrationFiles();
     const doneRows = await pg.query<{ name: string }>(
       "select name from _migrations",
     );
@@ -176,11 +219,12 @@ async function createSql(): Promise<Sql> {
         "or a server route loader, never from client code.",
     );
   }
+  if (dbSource === "none") throw new SetupRequiredError();
   return dbSource === "neon" ? createNeonSql() : createPgliteSql();
 }
 
 /**
- * Get the shared, **server-only** SQL client. Neon when `DATABASE_URL` is set,
+ * Get the shared, **server-only** SQL client. Neon when a Postgres URL is set,
  * otherwise the local PGLite fallback. Memoized — safe to call per request.
  *
  * Schema comes from `migrations/*.sql`, auto-applied before the first query on
@@ -225,7 +269,8 @@ export function ensureDbReady(): Promise<void> {
 }
 
 // Server-only eager start: kick PGLite bootstrap as soon as this module loads in
-// Node. Client bundles never hit this path (`getSql` throws in the browser).
+// Node. Never on Vercel — the wasm payload is not in the lambda. Client bundles
+// never hit this path (`getSql` throws in the browser).
 const globalBoot = globalThis as typeof globalThis & {
   __pgBootstrapPromise__?: Promise<void>;
 };

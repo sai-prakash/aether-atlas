@@ -4,6 +4,8 @@ import { PreviewHostBridge } from "@/components/preview-host-bridge";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "sonner";
 import { Shell } from "@/components/aether/shell";
+import { SetupNeon } from "@/components/aether/setup-neon";
+import { isSetupRequiredError } from "@/lib/setup-error";
 import appCss from "../styles.css?url";
 
 const APP_NAME = "AETHER";
@@ -32,6 +34,7 @@ export const Route = createRootRoute({
     ],
   }),
   component: Root,
+  errorComponent: DeskError,
 });
 
 function Root() {
@@ -60,6 +63,29 @@ function Root() {
             />
           </TooltipProvider>
         </AuthProvider>
+        <Scripts />
+      </body>
+    </html>
+  );
+}
+
+function DeskError({ error }: { error: Error }) {
+  const setup = isSetupRequiredError(error);
+  return (
+    <html lang="en" className="antialiased">
+      <head>
+        <HeadContent />
+      </head>
+      <body className="bg-bg text-fg">
+        {setup ? (
+          <SetupNeon detail={error.message} />
+        ) : (
+          <div className="mx-auto max-w-xl px-6 py-24">
+            <p className="text-[11px] uppercase tracking-[0.18em] text-subtle">Desk</p>
+            <h1 className="mt-2 font-display text-4xl italic tracking-tight">The desk could not open.</h1>
+            <p className="mt-4 text-sm text-muted">{error.message}</p>
+          </div>
+        )}
         <Scripts />
       </body>
     </html>

@@ -27,7 +27,7 @@ One click: clones this repo, creates a Vercel Hobby project, and provisions a Ne
 
 After deploy:
 
-1. Confirm `DATABASE_URL` is set (Neon integration does this).
+1. Confirm `DATABASE_URL` is set (Neon integration does this). If the live site says **the ledger is missing**, the project was deployed without Storage — add Neon Free under Vercel → Storage, then **Redeploy**.
 2. Optional: add `XAI_API_KEY` for on-demand daily briefs (cached 24h).
 3. Optional: add `CRON_SECRET` so `/api/cron` is not world-callable. Vercel Cron sends it automatically.
 4. First visit seeds the catalog. The daily cron (`06:15 UTC`) pulses the firehoses.
