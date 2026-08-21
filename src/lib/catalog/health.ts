@@ -1,7 +1,11 @@
 import type { SourceStatus } from "./types";
 
-/** Core firehoses. GitHub and Artificial Analysis are optional and do not count. */
-export const CORE_SOURCES = new Set(["hn", "arxiv", "hf", "hf-papers", "reddit", "rss"]);
+/**
+ * Core = firehoses that actually answer from a Vercel datacenter.
+ * Reddit, GitHub, and Artificial Analysis are optional and never degrade the desk.
+ */
+export const CORE_SOURCES = new Set(["hn", "arxiv", "hf-papers", "rss"]);
+export const OPTIONAL_SOURCES = new Set(["hf", "github", "reddit", "aa"]);
 export const LIVE_NEEDED = 3;
 
 export type IndexHealth = {
@@ -28,7 +32,15 @@ export function healthCopy(h: IndexHealth): string {
     return "No pulse yet. Rank is the editorial map — catalog prior only.";
   }
   if (h.status === "degraded") {
-    return `Index degraded: ${h.live} of ${h.needed} core firehoses returned rows. Scores are not shown. The map is the editorial ranking.`;
+    return `Index degraded: ${h.live} of ${h.needed} core firehoses (HN, arXiv, HF Daily Papers, lab RSS) returned rows. Heat is not used as rank. The map is editorial.`;
   }
-  return `${h.live} core firehoses live. Heat is mention counts, not a composite index.`;
+  return `${h.live} core firehoses live. Heat is mention counts, not a composite index. Reddit/GitHub/AA are optional.`;
+}
+
+export function sourceBadge(st: SourceStatus | undefined): "ok" | "fail" | "skip" | "idle" {
+  if (!st) return "idle";
+  if (st.ok && st.count > 0) return "ok";
+  if (st.optional || (st.error && st.error.startsWith("skipped"))) return "skip";
+  if (st.ok && st.count === 0) return "skip";
+  return "fail";
 }

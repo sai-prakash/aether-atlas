@@ -24,6 +24,21 @@ export const Route = createFileRoute("/e/$slug")({
     if (!data) throw notFound();
     return data;
   },
+  head: ({ loaderData }) => {
+    const e = loaderData?.entity;
+    if (!e) return { meta: [{ title: "AETHER" }] };
+    const title = `${e.name} · AETHER`;
+    const desc = `${e.tagline} Verified ${e.verifiedAt?.slice(0, 10) ?? "—"}. Map prior ${e.catalogWeight}.`;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: desc },
+        { property: "og:title", content: title },
+        { property: "og:description", content: desc },
+        { property: "og:type", content: "article" },
+      ],
+    };
+  },
   component: EntityPage,
   notFoundComponent: () => (
     <div className="mx-auto max-w-lg py-20 text-center">
@@ -104,14 +119,17 @@ function EntityPage() {
           value={
             entity.spec.priceIn != null
               ? `$${entity.spec.priceIn} / $${entity.spec.priceOut ?? "—"} per 1M`
-              : "—"
+              : "unknown"
           }
         />
         <Meta
           label="Context"
-          value={entity.spec.contextK ? `${entity.spec.contextK}K` : "—"}
+          value={entity.spec.contextK ? `${entity.spec.contextK}K` : "unknown"}
         />
-        <Meta label="Self-host" value={entity.spec.selfHost ? "Yes" : entity.spec.selfHost === false ? "No" : "—"} />
+        <Meta
+          label="Self-host"
+          value={entity.spec.selfHost === true ? "Yes" : entity.spec.selfHost === false ? "No" : "unknown"}
+        />
       </section>
       <section className="mt-4 grid gap-6 sm:grid-cols-3">
         <Meta label="Mentions 24h" value={String(entity.mentions24h)} />

@@ -191,6 +191,8 @@ export const SEED: SeedEntity[] = [
     catalog_weight: 92,
     aliases: ["fable 5", "claude fable", "fable-5"],
     trend: 1.1,
+    verified: "2026-07-24",
+    spec: { contextK: 200, selfHost: false },
   },
   {
     id: "gpt-5.6",
@@ -210,7 +212,7 @@ export const SEED: SeedEntity[] = [
     aliases: ["gpt-5.6", "gpt 5.6", "gpt5.6", "gpt-5.6 sol", "gpt-5.6 terra", "gpt-5.6 luna"],
     trend: 0.5,
     verified: "2026-07-09",
-    spec: { priceIn: 1.25, priceOut: 10, selfHost: false },
+    spec: { contextK: 128, priceIn: 1.25, priceOut: 10, selfHost: false },
   },
   {
     id: "grok-4.6",
@@ -249,6 +251,8 @@ export const SEED: SeedEntity[] = [
     catalog_weight: 91,
     aliases: ["gemini 3.1", "gemini-3.1-pro", "gemini 3"],
     trend: 0.7,
+    verified: "2026-08-01",
+    spec: { contextK: 1000, selfHost: false },
   },
   {
     id: "deepseek-r1",
@@ -313,7 +317,7 @@ export const SEED: SeedEntity[] = [
     aliases: ["qwen", "qwen3", "qwen 3", "qwen-3", "qwen3.8", "qwen 3.8", "qwen3.8-max", "qwen 3.8 max"],
     trend: 1.4,
     verified: "2026-08-03",
-    spec: { selfHost: true },
+    spec: { contextK: 128, selfHost: true },
   },
   {
     id: "llama-4",
@@ -353,6 +357,8 @@ export const SEED: SeedEntity[] = [
     catalog_weight: 74,
     aliases: ["gpt-oss", "gpt oss", "openai oss"],
     trend: 0.6,
+    verified: "2026-08-21",
+    spec: { selfHost: true },
   },
   {
     id: "gemma-3",
@@ -371,6 +377,8 @@ export const SEED: SeedEntity[] = [
     catalog_weight: 72,
     aliases: ["gemma", "gemma 3", "gemma-3"],
     trend: 0.2,
+    verified: "2026-08-21",
+    spec: { selfHost: true },
   },
 
   // —— Chat / research tools ————————————————————————————————
@@ -760,6 +768,8 @@ export const SEED: SeedEntity[] = [
     catalog_weight: 85,
     aliases: ["flux", "flux.1", "black forest"],
     trend: 0.5,
+    verified: "2026-08-21",
+    spec: { selfHost: true },
   },
   {
     id: "chatgpt-images",
@@ -869,6 +879,8 @@ export const SEED: SeedEntity[] = [
     catalog_weight: 81,
     aliases: ["veo", "veo 3", "omni flash"],
     trend: 0.8,
+    verified: "2026-08-21",
+    spec: { selfHost: false },
   },
   {
     id: "sora",
@@ -887,6 +899,8 @@ export const SEED: SeedEntity[] = [
     catalog_weight: 83,
     aliases: ["sora", "sora 2"],
     trend: 0.4,
+    verified: "2026-08-21",
+    spec: { selfHost: false },
   },
   {
     id: "elevenlabs",

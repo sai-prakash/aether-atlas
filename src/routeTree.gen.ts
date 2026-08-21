@@ -21,6 +21,7 @@ import { Route as MethodsRouteImport } from './routes/methods'
 import { Route as PapersRouteImport } from './routes/papers'
 import { Route as RankingsRouteImport } from './routes/rankings'
 import { Route as SignalsRouteImport } from './routes/signals'
+import { Route as WeekRouteImport } from './routes/week'
 import { Route as ApiAtlasDotjsonRouteImport } from './routes/api/atlas[.]json'
 import { Route as ApiCronRouteImport } from './routes/api/cron'
 import { Route as ESlugRouteImport } from './routes/e.$slug'
@@ -85,6 +86,11 @@ const SignalsRoute = SignalsRouteImport.update({
   path: '/signals',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WeekRoute = WeekRouteImport.update({
+  id: '/week',
+  path: '/week',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAtlasDotjsonRoute = ApiAtlasDotjsonRouteImport.update({
   id: '/api/atlas.json',
   path: '/api/atlas.json',
@@ -114,6 +120,7 @@ export interface FileRoutesByFullPath {
   '/papers': typeof PapersRoute
   '/rankings': typeof RankingsRoute
   '/signals': typeof SignalsRoute
+  '/week': typeof WeekRoute
   '/api/atlas.json': typeof ApiAtlasDotjsonRoute
   '/api/cron': typeof ApiCronRoute
   '/e/$slug': typeof ESlugRoute
@@ -131,6 +138,7 @@ export interface FileRoutesByTo {
   '/papers': typeof PapersRoute
   '/rankings': typeof RankingsRoute
   '/signals': typeof SignalsRoute
+  '/week': typeof WeekRoute
   '/api/atlas.json': typeof ApiAtlasDotjsonRoute
   '/api/cron': typeof ApiCronRoute
   '/e/$slug': typeof ESlugRoute
@@ -149,6 +157,7 @@ export interface FileRoutesById {
   '/papers': typeof PapersRoute
   '/rankings': typeof RankingsRoute
   '/signals': typeof SignalsRoute
+  '/week': typeof WeekRoute
   '/api/atlas.json': typeof ApiAtlasDotjsonRoute
   '/api/cron': typeof ApiCronRoute
   '/e/$slug': typeof ESlugRoute
@@ -168,6 +177,7 @@ export interface FileRouteTypes {
     | '/papers'
     | '/rankings'
     | '/signals'
+    | '/week'
     | '/api/atlas.json'
     | '/api/cron'
     | '/e/$slug'
@@ -185,6 +195,7 @@ export interface FileRouteTypes {
     | '/papers'
     | '/rankings'
     | '/signals'
+    | '/week'
     | '/api/atlas.json'
     | '/api/cron'
     | '/e/$slug'
@@ -202,6 +213,7 @@ export interface FileRouteTypes {
     | '/papers'
     | '/rankings'
     | '/signals'
+    | '/week'
     | '/api/atlas.json'
     | '/api/cron'
     | '/e/$slug'
@@ -220,6 +232,7 @@ export interface RootRouteChildren {
   PapersRoute: typeof PapersRoute
   RankingsRoute: typeof RankingsRoute
   SignalsRoute: typeof SignalsRoute
+  WeekRoute: typeof WeekRoute
   ApiAtlasDotjsonRoute: typeof ApiAtlasDotjsonRoute
   ApiCronRoute: typeof ApiCronRoute
   ESlugRoute: typeof ESlugRoute
@@ -311,6 +324,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignalsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/week': {
+      id: '/week'
+      path: '/week'
+      fullPath: '/week'
+      preLoaderRoute: typeof WeekRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/atlas.json': {
       id: '/api/atlas.json'
       path: '/api/atlas.json'
@@ -348,6 +368,7 @@ const rootRouteChildren: RootRouteChildren = {
   PapersRoute: PapersRoute,
   RankingsRoute: RankingsRoute,
   SignalsRoute: SignalsRoute,
+  WeekRoute: WeekRoute,
   ApiAtlasDotjsonRoute: ApiAtlasDotjsonRoute,
   ApiCronRoute: ApiCronRoute,
   ESlugRoute: ESlugRoute,

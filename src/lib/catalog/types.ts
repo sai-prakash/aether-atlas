@@ -125,6 +125,7 @@ export type SourceStatus = {
   ok: boolean;
   count: number;
   error?: string;
+  optional?: boolean;
 };
 
 export type IngestStatus = {

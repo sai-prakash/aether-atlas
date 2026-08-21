@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils";
 import { AetherMark } from "./mark";
 import { CommandPalette, SearchTrigger } from "./command";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { SITE } from "@/lib/site";
 
 const NAV = [
   { to: "/", label: "Observatory", icon: Orbit },
@@ -26,6 +27,7 @@ const NAV = [
 ] as const;
 
 const MORE = [
+  { to: "/week", label: "This week", icon: BookOpen },
   { to: "/signals", label: "Signals", icon: Radio },
   { to: "/papers", label: "Papers", icon: BookOpen },
   { to: "/methods", label: "Methods", icon: Layers },
@@ -64,7 +66,15 @@ export function Shell({ children }: { children: React.ReactNode }) {
           ))}
         </nav>
         <p className="px-5 pb-5 text-[11px] leading-relaxed text-subtle">
-          One daily pulse. Then the desk sleeps.
+          Signed by {SITE.editor}. Rank is prior. Heat is a count.
+          <br />
+          <a href="/feed.xml" className="hover:text-fg">
+            RSS
+          </a>
+          {" · "}
+          <a href="/api/atlas.json" className="hover:text-fg">
+            JSON
+          </a>
         </p>
       </aside>
 
@@ -77,6 +87,12 @@ export function Shell({ children }: { children: React.ReactNode }) {
             <div className="flex-1">
               <SearchTrigger onOpen={() => setCmd(true)} />
             </div>
+            <a href="/feed.xml" className="hidden text-[11px] uppercase tracking-[0.12em] text-subtle hover:text-fg sm:inline">
+              RSS
+            </a>
+            <a href="/api/atlas.json" className="hidden text-[11px] uppercase tracking-[0.12em] text-subtle hover:text-fg sm:inline">
+              JSON
+            </a>
           </div>
         </header>
         <main id="main" className="px-4 pb-24 pt-6 sm:px-6 md:pb-12">

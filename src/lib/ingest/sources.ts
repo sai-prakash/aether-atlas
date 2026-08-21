@@ -12,7 +12,8 @@ export type RawSignal = {
   entityId: string;
 };
 
-const UA = "AetherAtlas/1.0 (research ingest; +https://grok.com)";
+const OPTIONAL = new Set(["github", "reddit", "aa", "hf"]);
+const UA = "AetherAtlas/1.0 (research ingest; +https://aether-atlas-eight.vercel.app)";
 const BUDGET_MS = PULSE.fetchBudgetMs;
 
 export async function fetchAllSources(): Promise<{
@@ -43,11 +44,18 @@ export async function fetchAllSources(): Promise<{
     const name = jobs[i].name;
     const result = settled[i];
     if (result.status === "fulfilled") {
-      sources.push({ source: name, ok: true, count: result.value.rows.length });
+      sources.push({ source: name, ok: true, count: result.value.rows.length, optional: OPTIONAL.has(name) });
       signals.push(...result.value.rows);
     } else {
       const message = result.reason instanceof Error ? result.reason.message : "failed";
-      sources.push({ source: name, ok: false, count: 0, error: message.slice(0, 180) });
+      const optional = OPTIONAL.has(name) || message.startsWith("skipped");
+      sources.push({
+        source: name,
+        ok: false,
+        count: 0,
+        error: message.slice(0, 180),
+        optional,
+      });
     }
   }
 
@@ -84,39 +92,51 @@ async function getJson<T>(url: string, extraHeaders?: Record<string, string>): P
   return (await res.json()) as T;
 }
 
+export function hnUrls(nowSec = Math.floor(Date.now() / 1000)): string[] {
+  const weekAgo = nowSec - 7 * 86400;
+  const filter = encodeURIComponent(`created_at_i>${weekAgo}`);
+  return [
+    "https://hn.algolia.com/api/v1/search?tags=front_page&hitsPerPage=30",
+    `https://hn.algolia.com/api/v1/search_by_date?query=${encodeURIComponent("AI")}&tags=story&hitsPerPage=24&numericFilters=${filter}`,
+  ];
+}
+
 async function fetchHn(): Promise<RawSignal[]> {
-  const weekAgo = Math.floor(Date.now() / 1000) - 7 * 86400;
-  const query = "LLM OR Claude OR GPT OR Grok OR \"AI agent\" OR \"open source model\"";
-  const url =
-    `https://hn.algolia.com/api/v1/search?query=${encodeURIComponent(query)}` +
-    `&tags=story&hitsPerPage=24&numericFilters=created_at_i>${weekAgo}`;
-  const data = await getJson<{
-    hits: Array<{
-      objectID: string;
-      title: string | null;
-      url: string | null;
-      points: number | null;
-      created_at: string;
-      story_text: string | null;
-    }>;
-  }>(url);
   const out: RawSignal[] = [];
   const seen = new Set<string>();
-  for (const hit of data.hits ?? []) {
-    const title = hit.title?.trim();
-    if (!title || seen.has(hit.objectID)) continue;
-    seen.add(hit.objectID);
-    const link = hit.url || `https://news.ycombinator.com/item?id=${hit.objectID}`;
-    out.push({
-      source: "hn",
-      title,
-      url: link,
-      snippet: (hit.story_text ?? "").slice(0, 280),
-      score: hit.points ?? 0,
-      publishedAt: hit.created_at,
-      entityId: matchEntity(`${title} ${hit.url ?? ""}`, "hn"),
-    });
+  const settled = await Promise.allSettled(
+    hnUrls().map((url) =>
+      getJson<{
+        hits: Array<{
+          objectID: string;
+          title: string | null;
+          url: string | null;
+          points: number | null;
+          created_at: string;
+          story_text: string | null;
+        }>;
+      }>(url),
+    ),
+  );
+  for (const result of settled) {
+    if (result.status !== "fulfilled") continue;
+    for (const hit of result.value.hits ?? []) {
+      const title = hit.title?.trim();
+      if (!title || seen.has(hit.objectID)) continue;
+      seen.add(hit.objectID);
+      const link = hit.url || `https://news.ycombinator.com/item?id=${hit.objectID}`;
+      out.push({
+        source: "hn",
+        title,
+        url: link,
+        snippet: (hit.story_text ?? "").slice(0, 280),
+        score: hit.points ?? 0,
+        publishedAt: hit.created_at,
+        entityId: matchEntity(`${title} ${hit.url ?? ""}`, "hn"),
+      });
+    }
   }
+  if (out.length === 0) throw new Error("HN returned no stories");
   return out;
 }
 
@@ -146,16 +166,29 @@ async function fetchArxiv(): Promise<RawSignal[]> {
 }
 
 async function fetchHf(): Promise<RawSignal[]> {
-  const models = await getJson<
-    Array<{
-      id: string;
-      likes?: number;
-      downloads?: number;
-      pipeline_tag?: string;
-      lastModified?: string;
-    }>
-  >("https://huggingface.co/api/models?sort=trendingScore&limit=18&direction=-1");
-  return (models ?? []).slice(0, 18).map((m) => {
+  const urls = [
+    "https://huggingface.co/api/models?sort=trendingScore&limit=18&direction=-1",
+    "https://huggingface.co/api/models?sort=likes&limit=18",
+  ];
+  let models: Array<{
+    id: string;
+    likes?: number;
+    downloads?: number;
+    pipeline_tag?: string;
+    lastModified?: string;
+  }> | null = null;
+  let lastErr = "HF empty";
+  for (const url of urls) {
+    try {
+      models = await getJson(url);
+      if (Array.isArray(models) && models.length) break;
+    } catch (err) {
+      lastErr = err instanceof Error ? err.message : "HF failed";
+      models = null;
+    }
+  }
+  if (!models?.length) throw new Error(lastErr);
+  return models.slice(0, 18).map((m) => {
     const title = m.id;
     return {
       source: "hf",
@@ -272,7 +305,7 @@ async function fetchReddit(): Promise<RawSignal[]> {
   for (const r of settled) {
     if (r.status === "fulfilled") out.push(...r.value);
   }
-  if (out.length === 0) throw new Error("no reddit posts (blocked or empty)");
+  if (out.length === 0) throw new Error("skipped (reddit blocked from this host)");
   return out;
 }
 

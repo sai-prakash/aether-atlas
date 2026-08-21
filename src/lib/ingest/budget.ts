@@ -3,7 +3,7 @@ export const PULSE = {
   /** Daily cron (Hobby allows one cron, once per day). */
   cronExpr: "15 6 * * *",
   /** Skip a manual pulse if the last successful run is newer than this. */
-  minManualMs: 12 * 60 * 60 * 1000,
+  minManualMs: 30 * 60 * 1000,
   /** Skip cron / public /api/cron if the last successful run is newer than this. */
   minCronMs: 20 * 60 * 60 * 1000,
   /** Treat a `running` row older than this as a crashed lock. */
@@ -14,7 +14,7 @@ export const PULSE = {
   signalDays: 30,
   insightHours: 24,
   ingestRunDays: 30,
-  fetchBudgetMs: 3500,
+  fetchBudgetMs: 7000,
 } as const;
 
 export type CostLine = {

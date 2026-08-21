@@ -12,7 +12,8 @@ import { Badge } from "@/components/ui/badge";
 import { KIND_LABEL } from "@/lib/catalog/types";
 import { CostTeaser } from "@/components/aether/cost-ledger";
 import { DisagreementList, DisplacementList, LineageList } from "@/components/aether/lens-panels";
-import { healthCopy } from "@/lib/catalog/health";
+import { healthCopy, sourceBadge } from "@/lib/catalog/health";
+import { SITE } from "@/lib/site";
 
 export const Route = createFileRoute("/")({
   validateSearch: (s: Record<string, unknown>): { window?: TimeWindow } => {
@@ -44,7 +45,7 @@ function Observatory() {
           <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted">
             An editorial map of tools, models, techniques, and workflows — re-verified with dates
             and receipts. Rank is catalog prior, signed. Firehose heat is a count, gated when
-            sources are dark. Not a live composite index.
+            sources are dark. Signed by {SITE.editor} as of {SITE.verifiedAsOf}.
           </p>
         </div>
         <div className="flex flex-col items-start gap-3 sm:items-end">
@@ -80,9 +81,9 @@ function Observatory() {
         <section className="mt-8">
           <div className="mb-3 flex items-baseline justify-between">
             <h2 className="font-display text-2xl italic">Receipts</h2>
-            <a href="/feed.xml" className="text-xs text-muted hover:text-fg">
-              RSS
-            </a>
+            <Link to="/week" className="text-xs text-muted hover:text-fg">
+              This week
+            </Link>
           </div>
           <ul className="divide-y divide-border rounded-xl bg-surface px-4 shadow-[var(--shadow-border)]">
             {data.changelog.slice(0, 6).map((c) => (
@@ -297,9 +298,11 @@ function Observatory() {
         <div className="mt-4 flex flex-wrap gap-2">
           {Object.keys(SOURCE_LABEL).map((s) => {
             const st = (data.ingest.sources ?? []).find((x) => x.source === s);
+            const badge = sourceBadge(st);
             return (
-              <Badge key={s} variant={st?.ok ? "accent" : "outline"}>
-                {SOURCE_LABEL[s]} {st ? (st.ok ? st.count : "fail") : "idle"}
+              <Badge key={s} variant={badge === "ok" ? "accent" : "outline"}>
+                {SOURCE_LABEL[s]}{" "}
+                {badge === "ok" ? st?.count : badge === "fail" ? "fail" : badge === "skip" ? "skip" : "idle"}
               </Badge>
             );
           })}

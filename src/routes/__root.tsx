@@ -6,21 +6,22 @@ import { Toaster } from "sonner";
 import { Shell } from "@/components/aether/shell";
 import { SetupNeon } from "@/components/aether/setup-neon";
 import { isSetupRequiredError } from "@/lib/setup-error";
+import { SITE } from "@/lib/site";
 import appCss from "../styles.css?url";
-
-const APP_NAME = "AETHER";
 
 export const Route = createRootRoute({
   head: () => ({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: APP_NAME },
-      {
-        name: "description",
-        content: "Aether is a living atlas of AI — tools, models, papers, techniques, and rankings from public firehoses. One daily pulse, then the desk sleeps.",
-      },
+      { title: `${SITE.name} · ${SITE.tagline}` },
+      { name: "description", content: SITE.description },
       { name: "theme-color", content: "#09090b" },
+      { property: "og:title", content: `${SITE.name} · ${SITE.tagline}` },
+      { property: "og:description", content: SITE.description },
+      { property: "og:type", content: "website" },
+      { property: "og:url", content: SITE.url },
+      { name: "twitter:card", content: "summary" },
     ],
     links: [
       { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },

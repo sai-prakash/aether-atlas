@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { getSql } from "@/lib/db";
 import { ensureCatalog } from "@/lib/catalog/seed";
 import { getPulse } from "@/lib/ingest/pulse";
+import { SITE, absoluteUrl } from "@/lib/site";
 
 export const Route = createFileRoute("/feed.xml")({
   server: {
@@ -13,7 +14,7 @@ export const Route = createFileRoute("/feed.xml")({
         const items = (pulse.changelog ?? [])
           .slice(0, 24)
           .map((c) => {
-            const link = `https://aether-atlas-eight.vercel.app/e/${encodeURIComponent(c.entityId)}`;
+            const link = absoluteUrl(`/e/${encodeURIComponent(c.entityId)}`);
             return `<item>
   <title>${esc(c.title)}</title>
   <link>${link}</link>
@@ -26,9 +27,9 @@ export const Route = createFileRoute("/feed.xml")({
         const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">
 <channel>
-  <title>AETHER — receipts</title>
-  <link>https://aether-atlas-eight.vercel.app/</link>
-  <description>Dated changelog for the editorial map of AI.</description>
+  <title>${SITE.name} — receipts</title>
+  <link>${SITE.url}/</link>
+  <description>${esc(SITE.description)}</description>
   ${items}
 </channel>
 </rss>`;
