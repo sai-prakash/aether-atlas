@@ -19,7 +19,7 @@ export function Delta({ value, className }: { value: number; className?: string 
 }
 
 export function RankDelta({ from, to }: { from: number | null; to: number }) {
-  if (from == null) return <span className="text-xs text-subtle">new</span>;
+  if (from == null) return <span className="text-xs text-subtle">—</span>;
   const d = from - to;
   if (d === 0) return <span className="text-xs text-subtle">=</span>;
   return <Delta value={d} />;

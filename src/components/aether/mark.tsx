@@ -10,7 +10,7 @@ export function Lettermark({ name, kind, className }: { name: string; kind?: Kin
     .map((w) => w[0])
     .join("")
     .slice(0, 2)
-    .toUpperCase() || "Æ";
+    .toUpperCase() || "·";
   return (
     <span
       className={cn(

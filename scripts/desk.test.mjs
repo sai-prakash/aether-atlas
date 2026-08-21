@@ -11,12 +11,17 @@ function hnUrls(nowSec = Math.floor(Date.now() / 1000)) {
 }
 
 const CORE = new Set(["hn", "arxiv", "hf-papers", "rss"]);
+const KINDS = ["model", "tool", "technique", "workflow", "lab", "paper", "protocol"];
 
 function indexHealth(sources) {
   const cores = sources.filter((s) => CORE.has(s.source));
   const live = cores.filter((s) => s.ok && s.count > 0).length;
   if (live < 3) return { status: "degraded", live };
   return { status: "live", live };
+}
+
+function rankingKind(input) {
+  return typeof input === "string" && KINDS.includes(input) ? input : "model";
 }
 
 test("HN URLs encode numericFilters so Algolia does not 400", () => {
@@ -39,6 +44,12 @@ test("core health ignores optional reddit/github failures", () => {
   const h = indexHealth(sources);
   assert.equal(h.status, "live");
   assert.equal(h.live, 4);
+});
+
+test("rankings never mix kinds — empty kind falls back to model", () => {
+  assert.equal(rankingKind(""), "model");
+  assert.equal(rankingKind("All"), "model");
+  assert.equal(rankingKind("tool"), "tool");
 });
 
 test("encoded HN AI query returns stories", async () => {

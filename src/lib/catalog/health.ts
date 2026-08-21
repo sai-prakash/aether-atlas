@@ -29,12 +29,12 @@ export function indexHealth(sources: SourceStatus[]): IndexHealth {
 
 export function healthCopy(h: IndexHealth): string {
   if (h.status === "editorial") {
-    return "No pulse yet. Rank is the editorial map — catalog prior only.";
+    return "No pulse yet. Rank is the editorial map — catalog prior only. Heat is a mention count, not rank.";
   }
   if (h.status === "degraded") {
-    return `Index degraded: ${h.live} of ${h.needed} core firehoses (HN, arXiv, HF Daily Papers, lab RSS) returned rows. Heat is not used as rank. The map is editorial.`;
+    return `Firehoses thin: ${h.live} of ${h.needed} core sources (HN, arXiv, HF Daily Papers, lab RSS) returned rows. Rank is still catalog prior. Mentions are shown as weather, not rank.`;
   }
-  return `${h.live} core firehoses live. Heat is mention counts, not a composite index. Reddit/GitHub/AA are optional.`;
+  return `${h.live} core firehoses live. Rank is catalog prior. Heat is mention counts. Reddit/GitHub/Artificial Analysis are optional and not blended.`;
 }
 
 export function sourceBadge(st: SourceStatus | undefined): "ok" | "fail" | "skip" | "idle" {

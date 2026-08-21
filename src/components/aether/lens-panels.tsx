@@ -39,7 +39,7 @@ export function DisagreementList({
             <span className="flex flex-wrap gap-x-3 gap-y-1 font-mono text-[11px] text-muted">
               {row.boards.map((b) => (
                 <span key={b.board}>
-                  {BOARD_LABEL[b.board].split(" ")[0]} #{b.rank}
+                  {BOARD_LABEL[b.board]} #{b.rank}
                 </span>
               ))}
             </span>

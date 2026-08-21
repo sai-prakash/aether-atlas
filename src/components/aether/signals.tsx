@@ -7,7 +7,7 @@ export function SignalList({ signals, compact = false }: { signals: Signal[]; co
   if (signals.length === 0) {
     return (
       <p className="px-1 py-8 text-sm text-muted">
-        No live signals yet. Pull live sources to ingest Hacker News, arXiv, Hugging Face, GitHub, Reddit, and lab RSS.
+        No live signals yet. The daily cron pulls Hacker News, arXiv, Hugging Face Daily Papers, and lab RSS.
       </p>
     );
   }

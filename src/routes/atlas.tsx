@@ -18,7 +18,7 @@ export const Route = createFileRoute("/atlas")({
     if (typeof s.kind === "string" && s.kind) out.kind = s.kind;
     if (typeof s.license === "string" && s.license) out.license = s.license;
     if (typeof s.category === "string" && s.category) out.category = s.category;
-    if (s.sort === "momentum" || s.sort === "mentions" || s.sort === "score") out.sort = s.sort;
+    if (s.sort === "momentum" || s.sort === "mentions" || s.sort === "score" || s.sort === "map") out.sort = s.sort;
     return out;
   },
   loaderDeps: ({ search }) => ({
@@ -47,7 +47,7 @@ function Atlas() {
         <p className="text-[11px] uppercase tracking-[0.18em] text-subtle">Atlas</p>
         <h1 className="mt-2 font-display text-4xl italic">Everything we track.</h1>
         <p className="mt-2 max-w-xl text-sm text-muted">
-          Filter by kind, license, and field. Commercial and open-source sit on the same board.
+          The catalog, not a ranking. Filter by kind. Rank lives on Rankings, per kind only.
         </p>
       </header>
 
@@ -73,12 +73,12 @@ function Atlas() {
           options={[{ id: "", label: "All fields" }, ...CATEGORIES.map((k) => ({ id: k, label: CATEGORY_LABEL[k] }))]}
         />
         <ChipRow
-          value={search.sort ?? "score"}
+          value={search.sort ?? "map"}
           onChange={(sort) => set({ sort })}
           options={[
-            { id: "score", label: "Index" },
-            { id: "momentum", label: "Momentum" },
+            { id: "map", label: "Prior" },
             { id: "mentions", label: "Mentions" },
+            { id: "momentum", label: "24h" },
           ]}
         />
       </div>

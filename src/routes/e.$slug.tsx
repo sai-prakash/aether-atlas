@@ -56,7 +56,7 @@ function EntityPage() {
   const { entity, signals, related, snapshots, uses, usedBy, changelog } = Route.useLoaderData();
   const chart = snapshots.map((s) => ({
     t: atStamp(s.at, 10),
-    score: s.score,
+    mentions: s.mentions,
     rank: s.rank,
   }));
 
@@ -116,7 +116,7 @@ function EntityPage() {
       <section className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <Meta label="Pricing" value={entity.pricing || "—"} />
         <Meta
-          label="Tokens"
+          label="API"
           value={
             entity.spec.priceIn != null
               ? `$${entity.spec.priceIn} / $${entity.spec.priceOut ?? "—"} per 1M`
@@ -173,7 +173,7 @@ function EntityPage() {
                   fontSize: 12,
                 }}
               />
-              <Line type="monotone" dataKey="score" stroke="var(--color-accent)" strokeWidth={1.6} dot={false} />
+              <Line type="monotone" dataKey="mentions" stroke="var(--color-accent)" strokeWidth={1.6} dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </div>

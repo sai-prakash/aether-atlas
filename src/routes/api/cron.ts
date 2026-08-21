@@ -5,8 +5,9 @@ import { PULSE } from "@/lib/ingest/budget";
 import { claimPulse, runIngest } from "@/lib/ingest/run";
 
 function authorized(request: Request): boolean {
-  const secret = process.env.CRON_SECRET;
-  if (!secret) return true;
+  if (request.headers.get("x-vercel-cron") === "1") return true;
+  const secret = process.env.CRON_SECRET?.trim();
+  if (!secret) return false;
   return request.headers.get("authorization") === `Bearer ${secret}`;
 }
 

@@ -189,8 +189,8 @@ export async function materializePulse(
       from snapshots
       where captured_at >= ${since45}
       order by captured_at asc`,
-    sql<{ n: number }>`select count(*)::int as n from signals where coalesce(published_at, ingested_at) >= ${dayAgo}`,
-    sql<{ n: number }>`select count(*)::int as n from signals where coalesce(published_at, ingested_at) >= ${weekAgo}`,
+    sql<{ n: number }>`select count(*)::int as n from signals where entity_id <> '' and coalesce(published_at, ingested_at) >= ${dayAgo}`,
+    sql<{ n: number }>`select count(*)::int as n from signals where entity_id <> '' and coalesce(published_at, ingested_at) >= ${weekAgo}`,
     sql<{ entity_id: string; at: string; title: string; body: string; source_url: string }>`
       select entity_id, at::text as at, title, body, source_url
       from changelog order by at desc, id desc limit 24`,

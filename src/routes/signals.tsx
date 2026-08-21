@@ -2,11 +2,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import { getSignals } from "@/lib/server/queries";
 import { SOURCE_LABEL } from "@/lib/catalog/types";
 import { SignalList } from "@/components/aether/signals";
-import { LiveActions } from "@/components/aether/live-actions";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
-const SOURCES = ["", "hn", "arxiv", "hf", "github", "reddit", "rss"];
+const SOURCES = ["", "hn", "arxiv", "hf-papers", "hf", "rss"];
 
 export const Route = createFileRoute("/signals")({
   validateSearch: (s: Record<string, unknown>): { source?: string; q?: string } => {
@@ -32,11 +31,10 @@ function SignalsPage() {
           <p className="text-[11px] uppercase tracking-[0.18em] text-subtle">Signals</p>
           <h1 className="mt-2 font-display text-4xl italic">The firehose.</h1>
           <p className="mt-2 text-sm text-muted">
-            Hacker News, arXiv, Hugging Face, GitHub, Reddit, and lab RSS — ingested on the daily pulse,
-            never invented.
+            Public firehoses on the daily cron: Hacker News, arXiv, Hugging Face Daily Papers, lab RSS.
+            GitHub and Reddit are optional and usually skip from this host. Discord and X are closed — not faked.
           </p>
         </div>
-        <LiveActions />
       </header>
       <Input
         className="mb-4"

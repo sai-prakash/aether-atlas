@@ -3,7 +3,6 @@ import { listEntities } from "@/lib/server/queries";
 import { KIND_LABEL } from "@/lib/catalog/types";
 import { EntityCard } from "@/components/aether/entity-row";
 import { CostLedger } from "@/components/aether/cost-ledger";
-import { SITE } from "@/lib/site";
 
 export const Route = createFileRoute("/methods")({
   loader: async () => {
@@ -33,32 +32,66 @@ function Methods() {
         <p className="text-[11px] uppercase tracking-[0.16em] text-subtle">Methodology</p>
         <h2 className="mt-2 font-display text-2xl italic">Put a name on the rank.</h2>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted">
-          Hundred is an editorial map of ~100 names, re-verified with dates. It is not a live composite
-          index and does not compete with TAAFT on coverage or Artificial Analysis on measurement.
+          Hundred is an editorial map of ~100 names, re-verified with dates. Rank is catalog prior,
+          per kind. Mentions are weather. Cited boards stay cited. We do not compete with TAAFT on
+          coverage or Arena on pairwise preference.
         </p>
-        <p className="mt-3 text-sm text-muted">
-          Brand: <span className="text-fg">{SITE.longName}</span>. Buy{" "}
-          <span className="font-mono text-xs text-fg">{SITE.domains.primary}</span> first, then{" "}
-          <span className="font-mono text-xs text-fg">{SITE.domains.backup}</span>. Do not buy{" "}
-          <span className="font-mono text-xs">{SITE.domains.avoid}</span> (HundrED, education). Set{" "}
-          <span className="font-mono text-xs">SITE_URL</span> and{" "}
-          <span className="font-mono text-xs">EDITOR_NAME</span> after.
-        </p>
+        <div className="mt-5 overflow-x-auto">
+          <table className="w-full min-w-[36rem] text-left text-sm">
+            <thead className="text-[11px] uppercase tracking-[0.12em] text-subtle">
+              <tr>
+                <th className="pb-2 pr-4 font-medium">Desk</th>
+                <th className="pb-2 pr-4 font-medium">What they rank</th>
+                <th className="pb-2 font-medium">How</th>
+              </tr>
+            </thead>
+            <tbody className="text-muted">
+              <tr className="border-t border-border">
+                <td className="py-2 pr-4 text-fg">TAAFT</td>
+                <td className="py-2 pr-4">Tools (and models) submitted this year</td>
+                <td className="py-2">Registered-user votes. Coverage is the product.</td>
+              </tr>
+              <tr className="border-t border-border">
+                <td className="py-2 pr-4 text-fg">Arena</td>
+                <td className="py-2 pr-4">Models only</td>
+                <td className="py-2">
+                  Blind pairwise votes → Bradley-Terry (Elo-like), with style control. Side-by-side
+                  votes after identity reveal do not count.
+                </td>
+              </tr>
+              <tr className="border-t border-border">
+                <td className="py-2 pr-4 text-fg">Artificial Analysis</td>
+                <td className="py-2 pr-4">Models</td>
+                <td className="py-2">Measured quality, speed, price. Cited here, never absorbed.</td>
+              </tr>
+              <tr className="border-t border-border">
+                <td className="py-2 pr-4 text-fg">Hundred</td>
+                <td className="py-2 pr-4">~100 tools, models, techniques, workflows</td>
+                <td className="py-2">
+                  Signed catalog prior per kind. Mentions counted from public firehoses. Lens joins
+                  those columns. No composite blender.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
         <ul className="mt-4 space-y-2 text-sm leading-relaxed text-muted">
           <li>
-            <span className="text-fg">Map rank</span> — catalog prior (0–100), signed, per kind. Diffusion
-            is not ranked against Cursor.
+            <span className="text-fg">Map rank</span> — catalog prior (0–100), signed, per kind.
+            Diffusion is not ranked against Cursor.
           </li>
           <li>
-            <span className="text-fg">Heat</span> — raw 7-day mention counts. If fewer than three core
-            firehoses return rows, heat is not used as a ranking signal and the desk says index degraded.
+            <span className="text-fg">Heat</span> — raw mention counts from HN, arXiv, HF Daily
+            Papers, lab RSS. Never used as rank. Optional GitHub/Reddit/AA do not degrade the desk
+            when they skip.
           </li>
           <li>
             <span className="text-fg">Matching</span> — word-boundary aliases only. Generic cs.AI
-            vocabulary (transformer, diffusion, attention…) is never matched in paper titles.
+            vocabulary (transformer, diffusion, attention) is never matched in paper titles.
           </li>
           <li>
-            <span className="text-fg">Receipts</span> — dated changelog. Cited boards stay labeled.
+            <span className="text-fg">Receipts</span> — dated changelog with primary URLs. Titles
+            and excerpts belong to their authors; we link out.
             <a className="ml-2 text-fg underline" href="/api/atlas.json">
               JSON
             </a>
@@ -75,21 +108,21 @@ function Methods() {
         <h2 className="mt-2 font-display text-2xl italic">Pulse, cache, sleep.</h2>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted">
           Hundred is built to run on a free-tier host: one write a day, then a sleeping database.
-          Visitors never trigger the firehoses. The daily brief is on-demand and cached for 24 hours.
+          The public site does not trigger the firehoses. Pulse is cron-only.
         </p>
         <ol className="mt-5 grid gap-3 sm:grid-cols-3">
           <li className="rounded-lg bg-elevated/60 p-4">
             <p className="text-[11px] uppercase tracking-[0.14em] text-subtle">01 · Pulse</p>
             <p className="mt-2 text-sm leading-relaxed text-muted">
-              A daily cron pulls HN, arXiv, Hugging Face, Reddit, and lab RSS in parallel, with a
-              hard time budget. GitHub only runs when a token is present.
+              A daily cron pulls HN, arXiv, Hugging Face Daily Papers, and lab RSS in parallel, with a
+              hard time budget. GitHub only runs when a token is present. Reddit is attempted and
+              usually skipped from this host — it is not sold as live.
             </p>
           </li>
           <li className="rounded-lg bg-elevated/60 p-4">
             <p className="text-[11px] uppercase tracking-[0.14em] text-subtle">02 · Materialize</p>
             <p className="mt-2 text-sm leading-relaxed text-muted">
-              Scores, ranks, sparklines, and the feed land in one snapshot row. Old signals and
-              history are pruned so storage stays bounded.
+              Scores stay catalog prior. Ranks, sparklines, and the feed land in one snapshot row.
             </p>
           </li>
           <li className="rounded-lg bg-elevated/60 p-4">

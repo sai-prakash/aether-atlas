@@ -10,8 +10,8 @@ import {
 import { getDrift } from "@/lib/server/queries";
 import type { TimeWindow } from "@/lib/catalog/types";
 import { WindowToggle } from "@/components/aether/window-toggle";
-import { Delta } from "@/components/aether/delta";
 import { windowLabel, atStamp } from "@/lib/utils";
+import { KIND_LABEL } from "@/lib/catalog/types";
 
 const PALETTE = [
   "var(--color-accent)",
@@ -60,7 +60,8 @@ function Drift() {
           <p className="text-[11px] uppercase tracking-[0.18em] text-subtle">Drift</p>
           <h1 className="mt-2 font-display text-4xl italic">How the map is shifting.</h1>
           <p className="mt-2 max-w-xl text-sm text-muted">
-            Score paths for the current leaders over {windowLabel(window)}, plus the largest movers in either direction.
+            Mention counts for current leaders over {windowLabel(window)}. Rank does not move with the
+            firehose.
           </p>
         </div>
         <WindowToggle value={window} />
@@ -106,7 +107,7 @@ function Drift() {
       </section>
 
       <section className="mt-8">
-        <h2 className="mb-3 font-display text-2xl italic">Largest moves</h2>
+        <h2 className="mb-3 font-display text-2xl italic">Most mentioned</h2>
         <div className="grid gap-2 sm:grid-cols-2">
           {data.movers.map((m) => (
             <Link
@@ -117,11 +118,9 @@ function Drift() {
             >
               <div>
                 <p className="text-sm font-medium">{m.entity.name}</p>
-                <p className="text-xs text-subtle">
-                  rank {m.entity.prevRank ?? "—"} → {m.entity.rank}
-                </p>
+                <p className="text-xs text-subtle">{KIND_LABEL[m.entity.kind]} · prior {m.entity.catalogWeight}</p>
               </div>
-              <Delta value={m.delta} />
+              <span className="tabular text-sm text-muted">{m.delta} / 24h</span>
             </Link>
           ))}
         </div>

@@ -1,11 +1,11 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getSql } from "@/lib/db";
 import { ensureCatalog } from "@/lib/catalog/seed";
-import type { Dashboard, Entity, Mover, PulsePayload, TimeWindow } from "@/lib/catalog/types";
+import type { Dashboard, Entity, Mover, PulsePayload, TimeWindow, Kind } from "@/lib/catalog/types";
 import { windowHours } from "@/lib/catalog/scoring";
 import { buildLens, lineageFor } from "@/lib/catalog/lens";
 import { indexHealth } from "@/lib/catalog/health";
-import type { Kind } from "@/lib/catalog/types";
+import { KINDS } from "@/lib/catalog/types";
 import { PULSE } from "@/lib/ingest/budget";
 import { getPulse, patchPulse } from "@/lib/ingest/pulse";
 import { claimPulse, runIngest } from "@/lib/ingest/run";
@@ -24,14 +24,13 @@ function withPrev(entities: Entity[], prev: Record<string, { rank: number; score
   }));
 }
 
-function moversOf(entities: Entity[], prev: Record<string, { rank: number; score: number }>): Mover[] {
+function moversOf(entities: Entity[]): Mover[] {
   return entities
-    .map((entity) => {
-      const was = prev[entity.id];
-      const delta = was ? Math.round((entity.score - was.score) * 10) / 10 : entity.momentum;
-      const rankDelta = was?.rank != null ? was.rank - entity.rank : 0;
-      return { entity, delta, rankDelta };
-    })
+    .map((entity) => ({
+      entity,
+      delta: entity.mentions24h,
+      rankDelta: 0,
+    }))
     .sort((a, b) => b.delta - a.delta);
 }
 
@@ -40,7 +39,7 @@ function dashboardFrom(pulse: PulsePayload, window: TimeWindow): Dashboard {
   const since = Date.now() - hours * 3_600_000;
   const prev = pulse.prev[window] ?? {};
   const ranked = withPrev(pulse.entities, prev);
-  const movers = moversOf(ranked, prev);
+  const movers = moversOf(ranked);
   const signals = pulse.signals.filter((s) => {
     const t = new Date(s.publishedAt ?? s.ingestedAt).getTime();
     return !Number.isNaN(t) && t >= since;
@@ -87,7 +86,7 @@ export const listEntities = createServerFn({ method: "GET" })
     kind: input?.kind ?? "",
     license: input?.license ?? "",
     category: input?.category ?? "",
-    sort: input?.sort === "momentum" || input?.sort === "mentions" || input?.sort === "score" ? input.sort : "map",
+    sort: input?.sort === "momentum" || input?.sort === "mentions" || input?.sort === "score" || input?.sort === "map" ? input.sort : "map",
   }))
   .handler(async ({ data }) => {
     const pulse = await desk();
@@ -155,15 +154,21 @@ export const getSignals = createServerFn({ method: "GET" })
   });
 
 export const getRankings = createServerFn({ method: "GET" })
-  .validator((input: { kind?: string; license?: string; window?: TimeWindow } | undefined) => ({
-    kind: input?.kind ?? "",
-    license: input?.license ?? "",
-    window: (input?.window ?? "24h") as TimeWindow,
-  }))
+  .validator((input: { kind?: string; license?: string; window?: TimeWindow } | undefined) => {
+    const kind =
+      typeof input?.kind === "string" && (KINDS as readonly string[]).includes(input.kind)
+        ? input.kind
+        : "model";
+    return {
+      kind,
+      license: input?.license ?? "",
+      window: (input?.window ?? "24h") as TimeWindow,
+    };
+  })
   .handler(async ({ data }) => {
     const pulse = await desk();
     const filtered = pulse.entities.filter((e) => {
-      if (data.kind && e.kind !== data.kind) return false;
+      if (e.kind !== data.kind) return false;
       if (data.license && e.license !== data.license) return false;
       return e.status !== "deprecated";
     });
@@ -219,13 +224,25 @@ export const getDrift = createServerFn({ method: "GET" })
     }));
     const prev = pulse.prev[data.window] ?? {};
     const now = withPrev(pulse.entities, prev);
-    const movers = moversOf(now, prev)
+    const movers = moversOf(now)
       .sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta))
       .slice(0, 16);
     return { window: data.window, series, movers };
   });
 
 export const refreshLive = createServerFn({ method: "POST" }).handler(async () => {
+  const editor = process.env.EDITOR_TOKEN?.trim();
+  if (!editor) {
+    return {
+      ok: true as const,
+      skipped: true as const,
+      reason: "cron-only" as const,
+      last: null as string | null,
+      sources: [] as PulsePayload["ingest"]["sources"],
+      inserted: 0,
+      updated: 0,
+    };
+  }
   const sql = await getSql();
   await ensureCatalog(sql);
   const claimed = await claimPulse(sql, PULSE.minManualMs);
@@ -262,23 +279,23 @@ export const generateBrief = createServerFn({ method: "POST" }).handler(async ()
 
   const leaders = pulse.entities.slice(0, 12).map((e) => ({
     name: e.name,
-    score: e.score,
-    momentum: e.momentum,
     kind: e.kind,
+    prior: e.catalogWeight,
+    mentions24h: e.mentions24h,
   }));
   const movers = [...pulse.entities]
-    .sort((a, b) => b.momentum - a.momentum)
+    .sort((a, b) => b.mentions24h - a.mentions24h)
     .slice(0, 8)
-    .map((e) => ({ name: e.name, momentum: e.momentum }));
+    .map((e) => ({ name: e.name, mentions24h: e.mentions24h }));
   const signals = pulse.signals.slice(0, 18).map((s) => ({ source: s.source, title: s.title }));
 
   const prompt = `You are Hundred, a precise editorial desk for the AI ecosystem.
-Write a daily brief (title + 3 short sections: What moved, Why it matters, Watch next).
-Rules: only use the supplied evidence. Do not invent papers, numbers, or launches. If evidence is thin, say so. Neutral, editorial tone. No hype, no emojis.
+Write a daily brief (title + 3 short sections: Mention weather, Why it matters, Watch next).
+Rules: catalog prior is editorial and does not move with mentions. Do not describe prior as a live index. Only use the supplied evidence. Do not invent papers, numbers, or launches. If evidence is thin, say so. Neutral, editorial tone. No hype, no emojis.
 Return JSON: {"title": string, "body": string} where body is markdown with ### headings.
 
-Leaders: ${JSON.stringify(leaders)}
-Movers: ${JSON.stringify(movers)}
+Editorial leaders (prior, not a live rank): ${JSON.stringify(leaders)}
+Most mentioned 24h: ${JSON.stringify(movers)}
 Live signals: ${JSON.stringify(signals)}`;
 
   const res = await fetch("https://api.x.ai/v1/chat/completions", {

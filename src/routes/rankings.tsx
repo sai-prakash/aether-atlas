@@ -34,15 +34,16 @@ function Rankings() {
           <p className="text-[11px] uppercase tracking-[0.18em] text-subtle">Rankings</p>
           <h1 className="mt-2 font-display text-4xl italic">Per kind.</h1>
           <p className="mt-2 max-w-xl text-sm text-muted">
-            Editorial map rank within a kind. Not a cross-kind index — Diffusion is not comparable to
-            Cursor. Number is catalog prior (0–100). Heat is 7-day mentions, shown only as a count.
+            Editorial map rank within a kind. Diffusion is not comparable to Cursor. Number is
+            catalog prior (0–100). Mentions are a count, never blended into rank. There is no
+            cross-kind board.
           </p>
         </div>
         <WindowToggle value={search.window ?? "24h"} />
       </header>
 
       <div className="mb-4 flex flex-wrap gap-1.5">
-        {[{ id: "", label: "All" }, ...KINDS.map((k) => ({ id: k, label: KIND_LABEL[k] }))].map((o) => (
+        {KINDS.map((k) => ({ id: k, label: KIND_LABEL[k] })).map((o) => (
           <button
             key={o.id || "all"}
             type="button"

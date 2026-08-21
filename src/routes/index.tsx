@@ -6,8 +6,6 @@ import { formatCompact, formatRelative, windowLabel } from "@/lib/utils";
 import { EntityRow } from "@/components/aether/entity-row";
 import { SignalList } from "@/components/aether/signals";
 import { WindowToggle } from "@/components/aether/window-toggle";
-import { LiveActions } from "@/components/aether/live-actions";
-import { Delta } from "@/components/aether/delta";
 import { Badge } from "@/components/ui/badge";
 import { KIND_LABEL } from "@/lib/catalog/types";
 import { CostTeaser } from "@/components/aether/cost-ledger";
@@ -44,13 +42,12 @@ function Observatory() {
           </h1>
           <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted">
             An editorial map of tools, models, techniques, and workflows — re-verified with dates
-            and receipts. Rank is catalog prior, signed. Firehose heat is a count, gated when
-            sources are dark. Signed by {SITE.editor} as of {SITE.verifiedAsOf}.
+            and receipts. Rank is catalog prior, signed, per kind. Mentions are a count. Not a
+            live composite. Signed by {SITE.editor} as of {SITE.verifiedAsOf}.
           </p>
         </div>
         <div className="flex flex-col items-start gap-3 sm:items-end">
           <WindowToggle value={window} />
-          <LiveActions />
         </div>
       </header>
 
@@ -111,7 +108,9 @@ function Observatory() {
 
       {leadMover && !degraded ? (
         <section className="mt-6 rounded-xl bg-surface p-5 shadow-[var(--shadow-border)]">
-          <p className="text-[11px] uppercase tracking-[0.16em] text-subtle">Lead mover · {windowLabel(window)}</p>
+          <p className="text-[11px] uppercase tracking-[0.16em] text-subtle">
+            Most mentioned · {windowLabel(window)}
+          </p>
           <div className="mt-2 flex flex-wrap items-baseline gap-3">
             <Link
               to="/e/$slug"
@@ -120,7 +119,7 @@ function Observatory() {
             >
               {leadMover.entity.name}
             </Link>
-            <Delta value={leadMover.delta} className="text-sm" />
+            <span className="tabular text-sm text-muted">{leadMover.delta} mentions</span>
           </div>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted">{leadMover.entity.tagline}</p>
         </section>
@@ -164,9 +163,9 @@ function Observatory() {
           </section>
 
           <section>
-            <h2 className="mb-3 font-display text-2xl italic">Gainers & fades</h2>
+            <h2 className="mb-3 font-display text-2xl italic">Most mentioned</h2>
             <div className="grid gap-2">
-              {data.movers.slice(0, 5).map((m) => (
+              {data.movers.slice(0, 8).map((m) => (
                 <Link
                   key={m.entity.id}
                   to="/e/$slug"
@@ -174,18 +173,7 @@ function Observatory() {
                   className="flex items-center justify-between rounded-lg bg-surface px-3 py-2.5 shadow-[var(--shadow-border)] hover:shadow-[var(--shadow-border-hover)]"
                 >
                   <span className="text-sm">{m.entity.name}</span>
-                  <Delta value={m.delta} />
-                </Link>
-              ))}
-              {data.losers.slice(0, 3).map((m) => (
-                <Link
-                  key={m.entity.id}
-                  to="/e/$slug"
-                  params={{ slug: m.entity.id }}
-                  className="flex items-center justify-between rounded-lg bg-surface px-3 py-2.5 shadow-[var(--shadow-border)]"
-                >
-                  <span className="text-sm">{m.entity.name}</span>
-                  <Delta value={m.delta} />
+                  <span className="tabular text-xs text-muted">{m.delta} / 24h</span>
                 </Link>
               ))}
             </div>
@@ -268,7 +256,7 @@ function Observatory() {
                   {LICENSE_LABEL[l.license as keyof typeof LICENSE_LABEL] ?? l.license}
                 </p>
                 <p className="mt-2 font-display text-3xl italic tabular">{l.count}</p>
-                <p className="text-xs text-muted">avg index {l.avgScore.toFixed(1)}</p>
+                <p className="text-xs text-muted">avg prior {l.avgScore.toFixed(1)}</p>
               </div>
             ))}
           </div>
@@ -278,10 +266,11 @@ function Observatory() {
       <section className="mt-10 rounded-xl bg-surface p-5 shadow-[var(--shadow-border)]">
         <h2 className="font-display text-2xl italic">How the map is built</h2>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted">
-          Rank is catalog prior — a signed editorial weight, re-verified with a date. Mention heat is a
-          raw count and is hidden as a ranking signal when fewer than three core firehoses return rows.
-          Techniques are not matched in arXiv titles (that was ranking the vocabulary of cs.AI). Discord
-          is closed; X has no free firehose — those rooms are not faked.{" "}
+          Rank is catalog prior — a signed editorial weight, re-verified with a date. Mentions are a
+          raw count, never blended into rank. Techniques are not matched in arXiv titles (that was
+          ranking the vocabulary of cs.AI). Discord is closed; X has no free firehose — those rooms
+          are not faked. TAAFT ranks by votes. Arena ranks models with Bradley-Terry. This desk cites
+          both and absorbs neither.{" "}
           <Link to="/methods" className="text-accent hover:underline">
             Full methodology
           </Link>
