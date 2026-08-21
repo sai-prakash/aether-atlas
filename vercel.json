@@ -1,4 +1,5 @@
 {
+  "framework": "tanstack-start",
   "crons": [
     {
       "path": "/api/cron",

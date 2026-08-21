@@ -34,6 +34,8 @@ After deploy:
 
 Hobby allows **one cron per project**. That is why the desk pulses once a day, not every few hours.
 
+If Vercel asks for an **Application / Framework Preset**, choose **TanStack Start**. The repo pins it in `vercel.json` (`"framework": "tanstack-start"`). Leave build command and output directory as detected.
+
 ## Estimated month
 
 List prices as of August 2026. Assumes ~2,000 visits and one cron/day. Not an invoice.
