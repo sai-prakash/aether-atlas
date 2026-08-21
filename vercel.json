@@ -1,5 +1,9 @@
 {
   "framework": "tanstack-start",
+  "functions": {
+    "src/routes/api/cron.ts": { "maxDuration": 60 },
+    "src/routes/api/publish.ts": { "maxDuration": 60 }
+  },
   "crons": [
     {
       "path": "/api/cron",

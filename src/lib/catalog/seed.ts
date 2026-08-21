@@ -3,6 +3,7 @@ import { SEED } from "./seed-data";
 import { CHANGELOG_SEED } from "./changelog-seed";
 import { DROPS } from "./ira";
 import { invalidatePulseMem, materializePulse } from "@/lib/ingest/pulse";
+import { refreshIngestIfNeeded } from "@/lib/ingest/run";
 
 const g = globalThis as typeof globalThis & { __aetherCatalogReady__?: boolean };
 
@@ -104,5 +105,6 @@ export async function ensureCatalog(sql: Sql): Promise<void> {
 
   g.__aetherCatalogReady__ = true;
   invalidatePulseMem();
-  await materializePulse(sql);
+  const ingested = await refreshIngestIfNeeded(sql);
+  if (!ingested) await materializePulse(sql);
 }

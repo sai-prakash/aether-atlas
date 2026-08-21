@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { getSql, SetupRequiredError } from "@/lib/db";
 import { ensureCatalog } from "@/lib/catalog/seed";
 import { PULSE } from "@/lib/ingest/budget";
-import { claimPulse, runIngest } from "@/lib/ingest/run";
+import { claimPulse, ingestRevStale, runIngest } from "@/lib/ingest/run";
 
 function authorized(request: Request): boolean {
   if (request.headers.get("x-vercel-cron") === "1") return true;
@@ -21,7 +21,8 @@ export const Route = createFileRoute("/api/cron")({
         try {
           const sql = await getSql();
           await ensureCatalog(sql);
-          const claimed = await claimPulse(sql, PULSE.minCronMs);
+          const force = await ingestRevStale(sql);
+          const claimed = await claimPulse(sql, force ? 0 : PULSE.minCronMs);
           if (!claimed.ok) {
             return Response.json({
               ok: true,

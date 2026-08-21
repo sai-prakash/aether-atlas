@@ -364,6 +364,7 @@ export const getAtlasExport = createServerFn({ method: "GET" }).handler(async ()
   return {
     generatedAt: pulse.builtAt,
     health: indexHealth(pulse.ingest.sources ?? []),
+    ingest: pulse.ingest.sources ?? [],
     entities: pulse.entities.map((e) => ({
       id: e.id,
       kind: e.kind,

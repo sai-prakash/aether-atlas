@@ -14,6 +14,27 @@ export async function lastSuccessfulRun(sql: Sql): Promise<string | null> {
   return rows[0]?.finished_at ?? null;
 }
 
+export async function ingestRevStale(sql: Sql): Promise<boolean> {
+  const rows = await sql<{ stats: string }>`
+    select stats from ingest_runs where status = 'ok' order by id desc limit 1`;
+  if (!rows[0]) return true;
+  try {
+    const stats = JSON.parse(rows[0].stats) as { ingestRev?: number };
+    return Number(stats.ingestRev) !== PULSE.ingestRev;
+  } catch {
+    return true;
+  }
+}
+
+/** One ingest when parsers/sources change. Does not run on every page view. */
+export async function refreshIngestIfNeeded(sql: Sql): Promise<boolean> {
+  if (!(await ingestRevStale(sql))) return false;
+  const claimed = await claimPulse(sql, 0);
+  if (!claimed.ok) return false;
+  await runIngest(sql, { runId: claimed.runId });
+  return true;
+}
+
 export type Claim =
   | { ok: true; runId: number }
   | { ok: false; reason: "fresh" | "busy"; last: string | null };
@@ -69,7 +90,7 @@ export async function runIngest(
     await recomputeScores(sql);
     await pruneDesk(sql);
 
-    const stats = { inserted, signals: signals.length, sources: allSources.filter((s) => s.ok).length };
+    const stats = { inserted, signals: signals.length, sources: allSources.filter((s) => s.ok).length, ingestRev: PULSE.ingestRev };
     if (runId) {
       await sql.query(
         `update ingest_runs set finished_at = now(), status = 'ok', sources = $1, stats = $2 where id = $3`,
