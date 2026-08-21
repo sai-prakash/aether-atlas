@@ -20,7 +20,9 @@ import { Route as MethodRouteImport } from './routes/method'
 import { Route as MethodsRouteImport } from './routes/methods'
 import { Route as PapersRouteImport } from './routes/papers'
 import { Route as RankingsRouteImport } from './routes/rankings'
+import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as SignalsRouteImport } from './routes/signals'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as WeekRouteImport } from './routes/week'
 import { Route as ApiAtlasDotjsonRouteImport } from './routes/api/atlas[.]json'
 import { Route as ApiCronRouteImport } from './routes/api/cron'
@@ -81,9 +83,19 @@ const RankingsRoute = RankingsRouteImport.update({
   path: '/rankings',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
+  id: '/robots.txt',
+  path: '/robots.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SignalsRoute = SignalsRouteImport.update({
   id: '/signals',
   path: '/signals',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const WeekRoute = WeekRouteImport.update({
@@ -119,7 +131,9 @@ export interface FileRoutesByFullPath {
   '/methods': typeof MethodsRoute
   '/papers': typeof PapersRoute
   '/rankings': typeof RankingsRoute
+  '/robots.txt': typeof RobotsDottxtRoute
   '/signals': typeof SignalsRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/week': typeof WeekRoute
   '/api/atlas.json': typeof ApiAtlasDotjsonRoute
   '/api/cron': typeof ApiCronRoute
@@ -137,7 +151,9 @@ export interface FileRoutesByTo {
   '/methods': typeof MethodsRoute
   '/papers': typeof PapersRoute
   '/rankings': typeof RankingsRoute
+  '/robots.txt': typeof RobotsDottxtRoute
   '/signals': typeof SignalsRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/week': typeof WeekRoute
   '/api/atlas.json': typeof ApiAtlasDotjsonRoute
   '/api/cron': typeof ApiCronRoute
@@ -156,7 +172,9 @@ export interface FileRoutesById {
   '/methods': typeof MethodsRoute
   '/papers': typeof PapersRoute
   '/rankings': typeof RankingsRoute
+  '/robots.txt': typeof RobotsDottxtRoute
   '/signals': typeof SignalsRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/week': typeof WeekRoute
   '/api/atlas.json': typeof ApiAtlasDotjsonRoute
   '/api/cron': typeof ApiCronRoute
@@ -176,7 +194,9 @@ export interface FileRouteTypes {
     | '/methods'
     | '/papers'
     | '/rankings'
+    | '/robots.txt'
     | '/signals'
+    | '/sitemap.xml'
     | '/week'
     | '/api/atlas.json'
     | '/api/cron'
@@ -194,7 +214,9 @@ export interface FileRouteTypes {
     | '/methods'
     | '/papers'
     | '/rankings'
+    | '/robots.txt'
     | '/signals'
+    | '/sitemap.xml'
     | '/week'
     | '/api/atlas.json'
     | '/api/cron'
@@ -212,7 +234,9 @@ export interface FileRouteTypes {
     | '/methods'
     | '/papers'
     | '/rankings'
+    | '/robots.txt'
     | '/signals'
+    | '/sitemap.xml'
     | '/week'
     | '/api/atlas.json'
     | '/api/cron'
@@ -231,7 +255,9 @@ export interface RootRouteChildren {
   MethodsRoute: typeof MethodsRoute
   PapersRoute: typeof PapersRoute
   RankingsRoute: typeof RankingsRoute
+  RobotsDottxtRoute: typeof RobotsDottxtRoute
   SignalsRoute: typeof SignalsRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   WeekRoute: typeof WeekRoute
   ApiAtlasDotjsonRoute: typeof ApiAtlasDotjsonRoute
   ApiCronRoute: typeof ApiCronRoute
@@ -317,11 +343,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RankingsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/robots.txt': {
+      id: '/robots.txt'
+      path: '/robots.txt'
+      fullPath: '/robots.txt'
+      preLoaderRoute: typeof RobotsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/signals': {
       id: '/signals'
       path: '/signals'
       fullPath: '/signals'
       preLoaderRoute: typeof SignalsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/week': {
@@ -367,7 +407,9 @@ const rootRouteChildren: RootRouteChildren = {
   MethodsRoute: MethodsRoute,
   PapersRoute: PapersRoute,
   RankingsRoute: RankingsRoute,
+  RobotsDottxtRoute: RobotsDottxtRoute,
   SignalsRoute: SignalsRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   WeekRoute: WeekRoute,
   ApiAtlasDotjsonRoute: ApiAtlasDotjsonRoute,
   ApiCronRoute: ApiCronRoute,

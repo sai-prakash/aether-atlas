@@ -5,7 +5,7 @@ import { PULSE } from "./budget";
 
 /**
  * Optional Artificial Analysis free-tier ingest.
- * Cited, never folded into the Aether Index. Requires AA_API_KEY.
+ * Cited, never folded into the map rank. Requires AA_API_KEY.
  * Attribution: Artificial Analysis (https://artificialanalysis.ai).
  */
 export async function fetchCitedAa(): Promise<{
@@ -25,7 +25,7 @@ export async function fetchCitedAa(): Promise<{
 
   try {
     const res = await fetch("https://artificialanalysis.ai/api/v2/language/models/free", {
-      headers: { "x-api-key": key, Accept: "application/json", "User-Agent": "AetherAtlas/1.0" },
+      headers: { "x-api-key": key, Accept: "application/json", "User-Agent": "Hundred/1.0" },
       signal: AbortSignal.timeout(PULSE.fetchBudgetMs),
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);

@@ -3,6 +3,7 @@ import { listEntities } from "@/lib/server/queries";
 import { KIND_LABEL } from "@/lib/catalog/types";
 import { EntityCard } from "@/components/aether/entity-row";
 import { CostLedger } from "@/components/aether/cost-ledger";
+import { SITE } from "@/lib/site";
 
 export const Route = createFileRoute("/methods")({
   loader: async () => {
@@ -32,8 +33,16 @@ function Methods() {
         <p className="text-[11px] uppercase tracking-[0.16em] text-subtle">Methodology</p>
         <h2 className="mt-2 font-display text-2xl italic">Put a name on the rank.</h2>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted">
-          Aether is an editorial map of ~100 names, re-verified with dates. It is not a live composite
+          Hundred is an editorial map of ~100 names, re-verified with dates. It is not a live composite
           index and does not compete with TAAFT on coverage or Artificial Analysis on measurement.
+        </p>
+        <p className="mt-3 text-sm text-muted">
+          Brand: <span className="text-fg">{SITE.longName}</span>. Buy{" "}
+          <span className="font-mono text-xs text-fg">{SITE.domains.primary}</span> first, then{" "}
+          <span className="font-mono text-xs text-fg">{SITE.domains.backup}</span>. Do not buy{" "}
+          <span className="font-mono text-xs">{SITE.domains.avoid}</span> (HundrED, education). Set{" "}
+          <span className="font-mono text-xs">SITE_URL</span> and{" "}
+          <span className="font-mono text-xs">EDITOR_NAME</span> after.
         </p>
         <ul className="mt-4 space-y-2 text-sm leading-relaxed text-muted">
           <li>
@@ -65,7 +74,7 @@ function Methods() {
         <p className="text-[11px] uppercase tracking-[0.16em] text-subtle">Desk architecture</p>
         <h2 className="mt-2 font-display text-2xl italic">Pulse, cache, sleep.</h2>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted">
-          Aether is built to run on a free-tier host: one write a day, then a sleeping database.
+          Hundred is built to run on a free-tier host: one write a day, then a sleeping database.
           Visitors never trigger the firehoses. The daily brief is on-demand and cached for 24 hours.
         </p>
         <ol className="mt-5 grid gap-3 sm:grid-cols-3">
@@ -99,7 +108,7 @@ function Methods() {
         <h2 className="mt-2 font-display text-2xl italic">Cite, don’t absorb.</h2>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted">
           TAAFT, Futurepedia, Artificial Analysis, Arena, and Hugging Face Daily Papers each own one
-          column. Aether does not scrape their catalogs or blend their numbers into the Aether Index.
+          column. Hundred does not scrape their catalogs or blend their numbers into a composite index.
           The daily pulse cites public firehoses (and Artificial Analysis if <span className="font-mono text-xs">AA_API_KEY</span>{" "}
           is set). The Lens then joins ranks they will not put on one page: catalog prior vs firehose
           vs papers vs evals, technique lineage, and open-vs-commercial displacement.

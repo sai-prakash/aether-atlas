@@ -25,12 +25,24 @@ export function Lettermark({ name, kind, className }: { name: string; kind?: Kin
   );
 }
 
-export function AetherMark({ className }: { className?: string }) {
+export function HundredMark({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 32 32" className={cn("size-7", className)} aria-hidden>
-      <circle cx="16" cy="16" r="11" fill="none" stroke="currentColor" strokeWidth="1.2" />
-      <circle cx="16" cy="16" r="6.5" fill="none" stroke="currentColor" strokeWidth="1.2" />
-      <circle cx="22.4" cy="7.6" r="1.7" fill="currentColor" />
+      <text
+        x="16"
+        y="21"
+        textAnchor="middle"
+        fill="currentColor"
+        fontFamily="Georgia, 'Instrument Serif', serif"
+        fontSize="13"
+        fontStyle="italic"
+        letterSpacing="-0.04em"
+      >
+        100
+      </text>
     </svg>
   );
 }
+
+/** @deprecated use HundredMark */
+export const AetherMark = HundredMark;

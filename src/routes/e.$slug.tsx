@@ -17,6 +17,7 @@ import { EntityCard } from "@/components/aether/entity-row";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { atStamp } from "@/lib/utils";
+import { SITE } from "@/lib/site";
 
 export const Route = createFileRoute("/e/$slug")({
   loader: async ({ params }) => {
@@ -26,8 +27,8 @@ export const Route = createFileRoute("/e/$slug")({
   },
   head: ({ loaderData }) => {
     const e = loaderData?.entity;
-    if (!e) return { meta: [{ title: "AETHER" }] };
-    const title = `${e.name} · AETHER`;
+    if (!e) return { meta: [{ title: SITE.name }] };
+    const title = `${e.name} · ${SITE.name}`;
     const desc = `${e.tagline} Verified ${e.verifiedAt?.slice(0, 10) ?? "—"}. Map prior ${e.catalogWeight}.`;
     return {
       meta: [

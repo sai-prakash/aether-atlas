@@ -4,6 +4,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { Search } from "lucide-react";
 import { searchAll } from "@/lib/server/queries";
 import { KIND_LABEL, type Entity } from "@/lib/catalog/types";
+import { SITE } from "@/lib/site";
 
 export function CommandPalette({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
   const [q, setQ] = useState("");
@@ -47,7 +48,7 @@ export function CommandPalette({ open, onOpenChange }: { open: boolean; onOpenCh
       />
       <Cmdk
         className="relative z-10 w-full max-w-lg overflow-hidden rounded-xl bg-surface shadow-[var(--shadow-border)]"
-        label="Search Aether"
+        label={`Search ${SITE.name}`}
       >
         <div className="flex items-center gap-2 border-b border-border px-3">
           <Search className="size-4 text-subtle" />
@@ -91,7 +92,7 @@ export function SearchTrigger({ onOpen }: { onOpen: () => void }) {
       className="flex h-10 min-h-10 w-full items-center gap-2 rounded-md bg-elevated px-3 text-sm text-subtle shadow-[var(--shadow-border)] hover:text-fg"
     >
       <Search className="size-4" />
-      <span className="flex-1 text-left">Search the atlas</span>
+      <span className="flex-1 text-left">Search Hundred</span>
       <kbd className="hidden rounded bg-surface px-1.5 py-0.5 font-mono text-[10px] text-subtle sm:inline">⌘K</kbd>
     </button>
   );

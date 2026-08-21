@@ -1,6 +1,6 @@
 import type { TimeWindow } from "./types";
 
-/** Transparent Aether Index — weights are shown in the UI methodology. */
+/** Catalog prior is the map rank. Heat is a gated mention count — not a composite "index". */
 export const WEIGHTS = {
   catalog: 0.42,
   mentions: 0.33,

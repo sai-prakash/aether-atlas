@@ -21,7 +21,7 @@ function LensPage() {
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted">
           Directories list tools. Eval sites score models. Paper feeds rank arXiv. None of them join
           those columns, put techniques at the centre, or show when open-source is catching a
-          commercial name. Aether cites their boards. It does not absorb them into one fake index.
+          commercial name. Hundred cites their boards. It does not absorb them into one fake index.
         </p>
         <p className="mt-3 text-xs text-subtle">
           Snapshot {data.builtAt ? formatRelative(data.builtAt) : "seeded"}

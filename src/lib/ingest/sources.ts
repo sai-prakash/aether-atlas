@@ -13,7 +13,7 @@ export type RawSignal = {
 };
 
 const OPTIONAL = new Set(["github", "reddit", "aa", "hf"]);
-const UA = "AetherAtlas/1.0 (research ingest; +https://aether-atlas-eight.vercel.app)";
+const UA = "Hundred/1.0 (research ingest; +https://thehundred.ai)";
 const BUDGET_MS = PULSE.fetchBudgetMs;
 
 export async function fetchAllSources(): Promise<{

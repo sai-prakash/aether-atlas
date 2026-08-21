@@ -13,7 +13,7 @@ import {
   Waypoints,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { AetherMark } from "./mark";
+import { HundredMark } from "./mark";
 import { CommandPalette, SearchTrigger } from "./command";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { SITE } from "@/lib/site";
@@ -53,8 +53,8 @@ export function Shell({ children }: { children: React.ReactNode }) {
       </a>
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-56 flex-col border-r border-border bg-bg md:flex">
         <Link to="/" className="flex items-center gap-2.5 px-5 py-5 text-accent">
-          <AetherMark />
-          <span className="font-display text-2xl tracking-tight">Aether</span>
+          <HundredMark />
+          <span className="font-display text-2xl tracking-tight">{SITE.name}</span>
         </Link>
         <nav className="flex flex-1 flex-col gap-0.5 px-3">
           {NAV.map((item) => (
@@ -82,7 +82,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
         <header className="sticky top-0 z-20 border-b border-border bg-bg/90 backdrop-blur-sm">
           <div className="flex items-center gap-3 px-4 py-3 sm:px-6">
             <Link to="/" className="text-accent md:hidden">
-              <AetherMark className="size-6" />
+              <HundredMark className="size-6" />
             </Link>
             <div className="flex-1">
               <SearchTrigger onOpen={() => setCmd(true)} />

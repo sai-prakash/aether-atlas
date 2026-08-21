@@ -272,7 +272,7 @@ export const generateBrief = createServerFn({ method: "POST" }).handler(async ()
     .map((e) => ({ name: e.name, momentum: e.momentum }));
   const signals = pulse.signals.slice(0, 18).map((s) => ({ source: s.source, title: s.title }));
 
-  const prompt = `You are AETHER, a precise intelligence desk for the AI ecosystem.
+  const prompt = `You are Hundred, a precise editorial desk for the AI ecosystem.
 Write a daily brief (title + 3 short sections: What moved, Why it matters, Watch next).
 Rules: only use the supplied evidence. Do not invent papers, numbers, or launches. If evidence is thin, say so. Neutral, editorial tone. No hype, no emojis.
 Return JSON: {"title": string, "body": string} where body is markdown with ### headings.

@@ -1,12 +1,13 @@
-import { AetherMark } from "./mark";
+import { HundredMark } from "./mark";
+import { SITE } from "@/lib/site";
 
 export function SetupNeon({ detail }: { detail?: string }) {
   return (
     <div className="min-h-dvh bg-bg text-fg">
       <div className="mx-auto flex max-w-xl flex-col gap-8 px-6 py-16 sm:py-24">
         <div className="flex items-center gap-2.5 text-accent">
-          <AetherMark className="size-8" />
-          <span className="font-display text-3xl tracking-tight">Aether</span>
+          <HundredMark className="size-8" />
+          <span className="font-display text-3xl tracking-tight">{SITE.name}</span>
         </div>
         <header>
           <p className="text-[11px] uppercase tracking-[0.18em] text-subtle">Desk</p>
