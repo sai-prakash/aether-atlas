@@ -19,6 +19,7 @@ export type DayRecord = {
   n: number;
   movers: DayMover[];
   fades: DayMover[];
+  attention: { id: string; mentions: number }[];
   citedAa: { id: string; label: string }[];
   receipts: { at: string; title: string; entityId: string }[];
   unresolved: number;
@@ -31,13 +32,11 @@ function utcDay(iso = new Date().toISOString()): string {
   return iso.slice(0, 10);
 }
 
-function prevMentions(entity: Entity): number | null {
-  const spark = entity.spark ?? [];
-  if (spark.length < 2) return spark.length === 1 ? spark[0] : null;
-  return spark[spark.length - 2] ?? null;
-}
-
-function movement(entities: Entity[]): { movers: DayMover[]; fades: DayMover[] } {
+/** Mentions vs yesterday's closed day. Spark is intra-day and must not be used. */
+export function movement(
+  entities: Entity[],
+  prevById?: Record<string, number>,
+): { movers: DayMover[]; fades: DayMover[] } {
   const rows: DayMover[] = entities
     .filter((e) => e.status !== "deprecated")
     .map((e) => ({
@@ -45,31 +44,50 @@ function movement(entities: Entity[]): { movers: DayMover[]; fades: DayMover[] }
       name: e.name,
       kind: e.kind,
       mentions: e.mentions24h,
-      prev: prevMentions(e),
+      prev: prevById && Object.prototype.hasOwnProperty.call(prevById, e.id) ? prevById[e.id] : null,
     }));
+
+  const hasYesterday = Boolean(prevById && Object.keys(prevById).length);
+
+  if (!hasYesterday) {
+    return {
+      movers: rows
+        .filter((r) => r.mentions >= MIN_MENTIONS)
+        .sort((a, b) => b.mentions - a.mentions)
+        .slice(0, 8),
+      fades: [],
+    };
+  }
 
   const movers = rows
     .filter((r) => {
       if (r.mentions < MIN_MENTIONS) return false;
-      if (r.prev == null) return r.mentions >= MIN_MENTIONS;
+      if (r.prev == null) return true;
       return r.mentions - r.prev >= MIN_MENTIONS;
     })
     .sort((a, b) => b.mentions - (b.prev ?? 0) - (a.mentions - (a.prev ?? 0)))
     .slice(0, 8);
 
   const fades = rows
-    .filter((r) => r.prev != null && r.prev >= MIN_MENTIONS && (r.prev - r.mentions) >= MIN_MENTIONS)
+    .filter((r) => r.prev != null && r.prev >= MIN_MENTIONS && r.prev - r.mentions >= MIN_MENTIONS)
     .sort((a, b) => (b.prev ?? 0) - b.mentions - ((a.prev ?? 0) - a.mentions))
     .slice(0, 6);
 
   return { movers, fades };
 }
 
-export function buildDay(pulse: PulsePayload, unresolved: number): DayRecord {
+export function buildDay(
+  pulse: PulsePayload,
+  unresolved: number,
+  prevById?: Record<string, number>,
+): DayRecord {
   const day = utcDay(pulse.builtAt);
   const health = indexHealth(pulse.ingest.sources ?? []);
   const gap = health.status !== "live";
-  const { movers, fades } = gap ? { movers: [], fades: [] } : movement(pulse.entities);
+  const { movers, fades } = gap ? { movers: [], fades: [] } : movement(pulse.entities, prevById);
+  const attention = pulse.entities
+    .filter((e) => e.mentions24h > 0)
+    .map((e) => ({ id: e.id, mentions: e.mentions24h }));
   const receipts = (pulse.changelog ?? []).slice(0, 8).map((c: ChangelogEntry) => ({
     at: c.at.slice(0, 10),
     title: c.title,
@@ -90,6 +108,7 @@ export function buildDay(pulse: PulsePayload, unresolved: number): DayRecord {
     n: pulse.entities.length,
     movers,
     fades,
+    attention,
     citedAa,
     receipts,
     unresolved,

@@ -5,32 +5,41 @@ import { WEEK_LETTER } from "@/lib/catalog/ira";
 
 export const Route = createFileRoute("/week")({
   loader: () => getDashboard({ data: { window: "7d" } }),
-  head: () => ({
-    meta: [
-      { title: `${WEEK_LETTER.title} · ${SITE.name}` },
-      { name: "description", content: `${WEEK_LETTER.dek} Signed by ${SITE.editor}.` },
-    ],
-  }),
+  head: ({ loaderData }) => {
+    const letter = loaderData?.iraDay?.letter;
+    const title = letter?.title ?? WEEK_LETTER.title;
+    const dek = letter?.dek ?? WEEK_LETTER.dek;
+    return {
+      meta: [
+        { title: `${title} · ${SITE.name}` },
+        { name: "description", content: `${dek} ${SITE.editor}.` },
+      ],
+    };
+  },
   component: Week,
 });
 
 function Week() {
   const data = Route.useLoaderData();
-  const paras = WEEK_LETTER.body.split("\n\n");
+  const machine = data.iraDay?.letter;
+  const title = machine?.title ?? WEEK_LETTER.title;
+  const dek = machine?.dek ?? WEEK_LETTER.dek;
+  const paras = (machine?.body ?? WEEK_LETTER.body).split("\n\n");
+  const when = data.iraDay?.day ?? WEEK_LETTER.weekOf;
   return (
-    <article className="mx-auto max-w-2xl">
+    <article className="mx-auto max-w-xl">
       <header className="mb-10 border-b border-border pb-8">
-        <p className="text-[11px] uppercase tracking-[0.18em] text-subtle">
-          This week · {WEEK_LETTER.weekOf}
+        <p className="text-xs text-subtle">
+          {machine ? "Machine letter" : "Founding letter"} · {when}
         </p>
-        <h1 className="mt-2 font-display text-4xl italic tracking-tight">{WEEK_LETTER.title}</h1>
-        <p className="mt-3 text-sm text-muted">{WEEK_LETTER.dek}</p>
+        <h1 className="mt-2 font-display text-4xl italic tracking-tight">{title}</h1>
+        <p className="mt-3 text-[15px] text-muted">{dek}</p>
         <p className="mt-4 text-xs text-subtle">
           {SITE.editor}, {SITE.editorTitle}
         </p>
       </header>
 
-      <div className="space-y-4 text-sm leading-relaxed text-muted">
+      <div className="space-y-4 text-[15px] leading-relaxed text-muted">
         {paras.map((p) => (
           <p key={p.slice(0, 40)} className={p.startsWith("—") ? "text-fg" : undefined}>
             {p}
@@ -49,7 +58,7 @@ function Week() {
               <Link
                 to="/e/$slug"
                 params={{ slug: c.entityId }}
-                className="mt-1 block font-display text-2xl italic hover:text-accent"
+                className="mt-1 block font-display text-2xl italic hover:text-fg"
               >
                 {c.title}
               </Link>
@@ -78,16 +87,8 @@ function Week() {
           RSS
         </a>
         {" · "}
-        <Link to="/distribute" className="hover:text-fg">
-          Distribute
-        </Link>
-        {" · "}
-        <Link to="/refusals" className="hover:text-fg">
-          Kill-list
-        </Link>
-        {" · "}
         <Link to="/ira" className="hover:text-fg">
-          Masthead
+          Founding letter
         </Link>
       </p>
     </article>

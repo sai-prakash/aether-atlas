@@ -46,6 +46,11 @@ function Archive() {
               </p>
               <p className="mt-1 font-display text-2xl italic">{d.letter.title}</p>
               <p className="mt-1 text-sm text-muted">{d.letter.dek}</p>
+              {d.letter.body ? (
+                <p className="mt-3 text-sm leading-relaxed text-muted">
+                  {d.letter.body.split("\n\n").slice(0, 3).join(" ")}
+                </p>
+              ) : null}
               {d.movers[0] ? (
                 <p className="mt-2 text-xs text-subtle">
                   Lead mentions: {d.movers[0].name} {d.movers[0].mentions}

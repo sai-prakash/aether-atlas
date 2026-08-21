@@ -79,7 +79,6 @@ export async function ensureCatalog(sql: Sql): Promise<void> {
     );
   }
 
-  await sql.query(`truncate changelog`);
   for (const slice of chunk(CHANGELOG_SEED, 8)) {
     const values: unknown[] = [];
     const placeholders = slice.map((c, i) => {

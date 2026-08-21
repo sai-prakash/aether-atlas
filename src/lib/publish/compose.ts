@@ -86,13 +86,13 @@ export function letterFor(
   body: string;
   signed: boolean;
 } {
-  if (iraDay && iraDay.day > WEEK_LETTER.weekOf) {
+  if (iraDay) {
     return {
       weekOf: iraDay.day,
       title: iraDay.letter.title,
       dek: iraDay.letter.dek,
       body: iraDay.letter.body,
-      signed: false,
+      signed: iraDay.letter.mode === "machine",
     };
   }
   const newest = changelog[0]?.at?.slice(0, 10) ?? "";

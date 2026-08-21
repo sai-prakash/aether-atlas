@@ -106,3 +106,24 @@ test("lobsters /t/ai.json returns stories", async () => {
   const rows = await res.json();
   assert.ok(Array.isArray(rows) && rows.length > 0);
 });
+
+function firstDayMovers(rows) {
+  return rows.filter((r) => r.mentions >= 3).sort((a, b) => b.mentions - a.mentions);
+}
+
+test("first closed day uses mention counts, not intra-day spark deltas", () => {
+  const movers = firstDayMovers([
+    { name: "Qwen3.8", mentions: 13 },
+    { name: "Cursor", mentions: 2 },
+    { name: "Claude Opus 4.1", mentions: 5 },
+  ]);
+  assert.equal(movers[0].name, "Qwen3.8");
+  assert.equal(movers.length, 2);
+});
+
+test("a false quiet day is the only snapshot allowed to be rewritten", () => {
+  const needsRepair = (existing, next) =>
+    !existing.gap && !next.gap && existing.movers.length === 0 && next.movers.length > 0;
+  assert.equal(needsRepair({ gap: false, movers: [] }, { gap: false, movers: [{ name: "Qwen" }] }), true);
+  assert.equal(needsRepair({ gap: false, movers: [{ name: "Qwen" }] }, { gap: false, movers: [{ name: "Grok" }] }), false);
+});
