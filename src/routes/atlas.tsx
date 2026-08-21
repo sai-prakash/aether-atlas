@@ -47,7 +47,7 @@ function Atlas() {
         <p className="text-[11px] uppercase tracking-[0.18em] text-subtle">Atlas</p>
         <h1 className="mt-2 font-display text-4xl italic">Everything we track.</h1>
         <p className="mt-2 max-w-xl text-sm text-muted">
-          The catalog, not a ranking. Filter by kind. Rank lives on Rankings, per kind only.
+          The catalog, not a ranking. Filter by kind. Boards are per kind only.
         </p>
       </header>
 

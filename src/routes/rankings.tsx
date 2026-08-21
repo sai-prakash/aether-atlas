@@ -31,7 +31,7 @@ function Rankings() {
     <div className="mx-auto max-w-5xl">
       <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-[11px] uppercase tracking-[0.18em] text-subtle">Rankings</p>
+          <p className="text-[11px] uppercase tracking-[0.18em] text-subtle">Boards · per kind</p>
           <h1 className="mt-2 font-display text-4xl italic">Per kind.</h1>
           <p className="mt-2 max-w-xl text-sm text-muted">
             Editorial map rank within a kind. Diffusion is not comparable to Cursor. Number is

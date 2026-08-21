@@ -23,22 +23,22 @@ import { SITE } from "@/lib/site";
 
 const NAV = [
   { to: "/", label: "Desk", icon: PenLine },
-  { to: "/week", label: "This week", icon: BookOpen },
-  { to: "/rankings", label: "Rankings", icon: Scale },
-  { to: "/lens", label: "Lens", icon: Waypoints },
-  { to: "/ira", label: "Ira", icon: User },
+  { to: "/week", label: "Letter", icon: BookOpen },
+  { to: "/archive", label: "Archive", icon: Activity },
+  { to: "/atlas", label: "Atlas", icon: Map },
 ] as const;
 
 const MORE = [
+  { to: "/rankings", label: "Boards", icon: Scale },
+  { to: "/lens", label: "Lens", icon: Waypoints },
+  { to: "/ira", label: "Ira", icon: User },
   { to: "/refusals", label: "Kill-list", icon: ShieldOff },
-  { to: "/atlas", label: "Catalog", icon: Map },
-  { to: "/drift", label: "Weather", icon: Activity },
-  { to: "/distribute", label: "Distribute", icon: Send },
-  { to: "/signals", label: "Signals", icon: Radio },
-  { to: "/archive", label: "Archive", icon: BookOpen },
   { to: "/lab", label: "Lab", icon: Layers },
   { to: "/methods", label: "Methods", icon: Layers },
+  { to: "/signals", label: "Signals", icon: Radio },
+  { to: "/drift", label: "Weather", icon: Activity },
   { to: "/compare", label: "Compare", icon: GitCompare },
+  { to: "/distribute", label: "Distribute", icon: Send },
 ] as const;
 
 function isActive(pathname: string, to: string) {
@@ -109,7 +109,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
       </div>
 
       <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-bg/95 pb-[env(safe-area-inset-bottom)] md:hidden">
-        <ul className="grid grid-cols-6">
+        <ul className="grid grid-cols-5">
           {NAV.map((item) => {
             const Icon = item.icon;
             const active = isActive(pathname, item.to);
