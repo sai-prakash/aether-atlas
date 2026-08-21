@@ -1,20 +1,6 @@
 import { useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import {
-  Activity,
-  BookOpen,
-  GitCompare,
-  Layers,
-  Map,
-  MoreHorizontal,
-  PenLine,
-  Radio,
-  Scale,
-  Send,
-  ShieldOff,
-  User,
-  Waypoints,
-} from "lucide-react";
+import { BookOpen, History, Layers, Map, MoreHorizontal, Newspaper, ShieldOff, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { HundredMark } from "./mark";
 import { CommandPalette, SearchTrigger } from "./command";
@@ -22,23 +8,16 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { SITE } from "@/lib/site";
 
 const NAV = [
-  { to: "/", label: "Desk", icon: PenLine },
+  { to: "/", label: "Today", icon: Newspaper },
   { to: "/week", label: "Letter", icon: BookOpen },
-  { to: "/archive", label: "Archive", icon: Activity },
+  { to: "/archive", label: "Archive", icon: History },
   { to: "/atlas", label: "Atlas", icon: Map },
 ] as const;
 
 const MORE = [
-  { to: "/rankings", label: "Boards", icon: Scale },
-  { to: "/lens", label: "Lens", icon: Waypoints },
+  { to: "/refusals", label: "Not listed", icon: ShieldOff },
+  { to: "/lab", label: "How it runs", icon: Layers },
   { to: "/ira", label: "Ira", icon: User },
-  { to: "/refusals", label: "Kill-list", icon: ShieldOff },
-  { to: "/lab", label: "Lab", icon: Layers },
-  { to: "/methods", label: "Methods", icon: Layers },
-  { to: "/signals", label: "Signals", icon: Radio },
-  { to: "/drift", label: "Weather", icon: Activity },
-  { to: "/compare", label: "Compare", icon: GitCompare },
-  { to: "/distribute", label: "Distribute", icon: Send },
 ] as const;
 
 function isActive(pathname: string, to: string) {
@@ -59,8 +38,8 @@ export function Shell({ children }: { children: React.ReactNode }) {
       >
         Skip to content
       </a>
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-56 flex-col border-r border-border bg-bg md:flex">
-        <Link to="/" className="flex items-center gap-2.5 px-5 py-5 text-accent">
+      <aside className="fixed inset-y-0 left-0 z-30 hidden w-52 flex-col border-r border-border bg-bg md:flex">
+        <Link to="/" className="flex items-center gap-2.5 px-5 py-5 text-fg">
           <HundredMark />
           <span className="font-display text-2xl tracking-tight">{SITE.name}</span>
         </Link>
@@ -68,39 +47,33 @@ export function Shell({ children }: { children: React.ReactNode }) {
           {NAV.map((item) => (
             <NavLink key={item.to} {...item} active={isActive(pathname, item.to)} />
           ))}
-          <p className="mb-1 mt-6 px-3 text-[10px] uppercase tracking-[0.16em] text-subtle">Library</p>
+          <p className="mb-1 mt-8 px-3 text-xs text-subtle">Also</p>
           {MORE.map((item) => (
             <NavLink key={item.to} {...item} active={isActive(pathname, item.to)} />
           ))}
         </nav>
         <p className="px-5 pb-5 text-[11px] leading-relaxed text-subtle">
-          {SITE.editor}, {SITE.editorTitle}. Rank is prior.
+          Mentions aren’t rank.
           <br />
           <a href="/feed.xml" className="hover:text-fg">
             RSS
           </a>
           {" · "}
-          <a href="/api/atlas.json" className="hover:text-fg">
-            JSON
+          <a href="/api/day.json" className="hover:text-fg">
+            Days
           </a>
         </p>
       </aside>
 
-      <div className="md:pl-56">
+      <div className="md:pl-52">
         <header className="sticky top-0 z-20 border-b border-border bg-bg/90 backdrop-blur-sm">
           <div className="flex items-center gap-3 px-4 py-3 sm:px-6">
-            <Link to="/" className="text-accent md:hidden">
+            <Link to="/" className="text-fg md:hidden">
               <HundredMark className="size-6" />
             </Link>
             <div className="flex-1">
               <SearchTrigger onOpen={() => setCmd(true)} />
             </div>
-            <a href="/feed.xml" className="hidden text-[11px] uppercase tracking-[0.12em] text-subtle hover:text-fg sm:inline">
-              RSS
-            </a>
-            <a href="/api/atlas.json" className="hidden text-[11px] uppercase tracking-[0.12em] text-subtle hover:text-fg sm:inline">
-              JSON
-            </a>
           </div>
         </header>
         <main id="main" className="px-4 pb-24 pt-6 sm:px-6 md:pb-12">
@@ -132,11 +105,11 @@ export function Shell({ children }: { children: React.ReactNode }) {
             <Sheet>
               <SheetTrigger className="flex min-h-12 w-full flex-col items-center justify-center gap-0.5 text-[10px] text-subtle">
                 <MoreHorizontal className="size-4" />
-                More
+                Also
               </SheetTrigger>
               <SheetContent side="bottom" className="pb-8">
                 <SheetHeader>
-                  <SheetTitle>Library</SheetTitle>
+                  <SheetTitle>Also</SheetTitle>
                 </SheetHeader>
                 <div className="grid gap-1 px-3 pb-4">
                   {MORE.map((item) => {
@@ -172,7 +145,7 @@ function NavLink({
 }: {
   to: (typeof NAV)[number]["to"] | (typeof MORE)[number]["to"];
   label: string;
-  icon: typeof PenLine;
+  icon: typeof BookOpen;
   active: boolean;
 }) {
   return (
