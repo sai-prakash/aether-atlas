@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { getDashboard } from "@/lib/server/queries";
 import type { TimeWindow } from "@/lib/catalog/types";
 import { SOURCE_LABEL } from "@/lib/catalog/types";
-import { formatRelative, windowLabel } from "@/lib/utils";
+import { formatRelative } from "@/lib/utils";
 import { healthCopy, sourceBadge } from "@/lib/catalog/health";
 import { WEEK_LETTER } from "@/lib/catalog/ira";
 import { SITE } from "@/lib/site";
@@ -19,14 +19,14 @@ export const Route = createFileRoute("/")({
 
 function Observatory() {
   const data = Route.useLoaderData();
-  const { window: windowRaw } = Route.useSearch();
-  const window = windowRaw ?? "24h";
   const health = data.health;
   const degraded = health.status !== "live";
   const day = data.iraDay;
   const headline = day?.letter.title ?? WEEK_LETTER.title;
   const dek = day?.letter.dek ?? WEEK_LETTER.body.split("\n\n")[0];
-  const movers = degraded ? [] : data.movers.filter((m) => m.delta >= 3).slice(0, 8);
+  const looked = !degraded && day && !day.gap ? day.movers : [];
+  const cooling = !degraded && day && !day.gap ? day.fades : [];
+  const vsYesterday = looked.some((m) => m.prev != null) || cooling.length > 0;
 
   return (
     <div className="mx-auto max-w-xl">
@@ -36,8 +36,8 @@ function Observatory() {
           {data.ingest.finishedAt ? ` · ${formatRelative(data.ingest.finishedAt)}` : ""}
         </p>
         <p className="mt-4 text-[15px] leading-relaxed text-fg">
-          What moved on a map of 100 names — models, tools, techniques, workflows. Evidence attached.
-          Mentions aren’t rank.
+          What changed on a map of 100 names — models, tools, techniques, workflows. Evidence
+          attached. Mentions aren’t rank.
         </p>
         <h1 className="mt-6 font-display text-[2.15rem] italic leading-[1.15] tracking-tight text-fg sm:text-5xl">
           {headline}
@@ -61,22 +61,50 @@ function Observatory() {
         ) : null}
       </header>
 
-      {movers.length ? (
+      {looked.length ? (
         <section className="border-t border-border pt-8">
-          <p className="text-xs text-subtle">Mentioned {windowLabel(window)} · not quality</p>
+          <p className="text-xs text-subtle">
+            {vsYesterday ? "What changed since yesterday" : "What the field looked at · first closed day"}
+            {" · not quality"}
+          </p>
           <ol className="mt-4">
-            {movers.map((m, i) => (
-              <li key={m.entity.id} className="border-b border-border">
+            {looked.map((m, i) => (
+              <li key={m.id} className="border-b border-border">
                 <Link
                   to="/e/$slug"
-                  params={{ slug: m.entity.id }}
+                  params={{ slug: m.id }}
                   className="flex min-h-12 items-baseline justify-between gap-4 py-3"
                 >
                   <span className="flex min-w-0 items-baseline gap-3">
                     <span className="w-5 shrink-0 font-mono text-xs text-subtle">{i + 1}</span>
-                    <span className="truncate text-[15px] text-fg">{m.entity.name}</span>
+                    <span className="truncate text-[15px] text-fg">{m.name}</span>
                   </span>
-                  <span className="shrink-0 font-mono text-xs tabular text-muted">{m.delta}</span>
+                  <span className="shrink-0 font-mono text-xs tabular text-muted">
+                    {m.mentions}
+                    {m.prev != null ? ` · was ${m.prev}` : ""}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ol>
+        </section>
+      ) : null}
+
+      {cooling.length ? (
+        <section className="mt-8">
+          <p className="text-xs text-subtle">Cooling</p>
+          <ol className="mt-3">
+            {cooling.map((m) => (
+              <li key={m.id} className="border-b border-border">
+                <Link
+                  to="/e/$slug"
+                  params={{ slug: m.id }}
+                  className="flex min-h-11 items-baseline justify-between gap-4 py-2.5 text-[15px]"
+                >
+                  <span className="truncate text-fg">{m.name}</span>
+                  <span className="font-mono text-xs tabular text-muted">
+                    {m.mentions} · was {m.prev}
+                  </span>
                 </Link>
               </li>
             ))}
