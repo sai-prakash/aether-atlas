@@ -1,6 +1,6 @@
 /** Thrown when production has no Postgres URL. Safe to import from UI. */
 export class SetupRequiredError extends Error {
-  constructor(message = "DATABASE_URL is not set. Connect Neon Free in Vercel Storage, then redeploy.") {
+  constructor(message = "STORAGE_URL / DATABASE_URL is not set. Connect Neon Free in Vercel Storage, then redeploy.") {
     super(message);
     this.name = "SetupRequiredError";
   }
@@ -14,6 +14,7 @@ export function isSetupRequiredError(err: unknown): boolean {
   return (
     name === "SetupRequiredError" ||
     message.includes("DATABASE_URL is not set") ||
+    message.includes("STORAGE_URL") ||
     message.includes("pglite.data")
   );
 }

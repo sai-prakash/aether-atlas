@@ -8,6 +8,7 @@
  */
 export function resolveDatabaseUrl(env = process.env) {
   const keys = [
+    "STORAGE_URL",
     "DATABASE_URL",
     "POSTGRES_URL",
     "POSTGRES_PRISMA_URL",

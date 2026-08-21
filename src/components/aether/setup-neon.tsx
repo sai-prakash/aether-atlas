@@ -21,7 +21,7 @@ export function SetupNeon({ detail }: { detail?: string }) {
           {[
             "Open the Vercel project that serves this URL.",
             "Storage → Create Database → Neon, Free plan.",
-            "Connect it to this project. Vercel injects DATABASE_URL (or POSTGRES_URL).",
+            "Connect it to this project. Vercel injects STORAGE_URL (or DATABASE_URL).",
             "Deployments → Redeploy the latest production build.",
             "Open this page again. First load writes the seed catalog.",
           ].map((step, i) => (

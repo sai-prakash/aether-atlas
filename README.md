@@ -27,7 +27,7 @@ One click: clones this repo, creates a Vercel Hobby project, and provisions a Ne
 
 After deploy:
 
-1. Confirm `DATABASE_URL` is set (Neon integration does this). If the live site says **the ledger is missing**, the project was deployed without Storage — add Neon Free under Vercel → Storage, then **Redeploy**.
+1. Confirm `STORAGE_URL` or `DATABASE_URL` is set (Vercel Storage / Neon injects one of these). If the live site says **the ledger is missing**, add Neon Free under Vercel → Storage, then **Redeploy**.
 2. Optional: add `XAI_API_KEY` for on-demand daily briefs (cached 24h).
 3. Optional: add `CRON_SECRET` so `/api/cron` is not world-callable. Vercel Cron sends it automatically.
 4. First visit seeds the catalog. The daily cron (`06:15 UTC`) pulses the firehoses.
@@ -61,7 +61,7 @@ Aether Index = catalog prior + live mention velocity + public social (GitHub/HF)
 
 | Var | Required | Purpose |
 |---|---|---|
-| `DATABASE_URL` | In production | Neon pooled connection. Unset → embedded PGLite (local only). |
+| `STORAGE_URL` or `DATABASE_URL` | In production | Neon pooled connection (Vercel Storage uses `STORAGE_URL`). Unset → embedded PGLite (local only). |
 | `XAI_API_KEY` | No | On-demand daily brief. $0 if unused. |
 | `CRON_SECRET` | Recommended | Protects `/api/cron`. |
 | `GITHUB_TOKEN` | No | Enables GitHub search during the pulse. |
