@@ -59,3 +59,50 @@ test("encoded HN AI query returns stories", async () => {
   const data = await res.json();
   assert.ok(Array.isArray(data.hits) && data.hits.length > 0, "expected HN hits");
 });
+
+const INGEST_UA = { "User-Agent": "Hundred/1.0 (research ingest; +https://thehundred.ai)" };
+
+test("reddit Atom feed answers when JSON is blocked", async () => {
+  const res = await fetch("https://www.reddit.com/r/LocalLLaMA/.rss", {
+    headers: { ...INGEST_UA, Accept: "application/atom+xml, application/xml" },
+    signal: AbortSignal.timeout(12000),
+  });
+  if (res.status === 429) return;
+  assert.equal(res.status, 200);
+  const xml = await res.text();
+  assert.ok(xml.includes("<entry>"), "expected Atom entries");
+});
+
+test("github trending HTML lists repositories", async () => {
+  const res = await fetch("https://github.com/trending", {
+    headers: { "User-Agent": "Mozilla/5.0 (compatible; Hundred/1.0)", Accept: "text/html" },
+    signal: AbortSignal.timeout(15000),
+  });
+  assert.equal(res.status, 200);
+  const html = await res.text();
+  const repos = [...html.matchAll(/<h2[^>]*>\s*<a[^>]+href="\/([A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+)"/g)].map(
+    (m) => m[1],
+  );
+  assert.ok(repos.length >= 5, `expected trending repos, got ${repos.length}`);
+});
+
+test("Artificial Analysis public page exposes Intelligence Index", async () => {
+  const res = await fetch("https://artificialanalysis.ai/models", {
+    headers: { "User-Agent": "Mozilla/5.0 (compatible; Hundred/1.0)", Accept: "text/html" },
+    signal: AbortSignal.timeout(15000),
+  });
+  assert.equal(res.status, 200);
+  const html = await res.text();
+  assert.ok(html.includes("intelligenceIndex"));
+  assert.ok(/Claude Opus 5/.test(html));
+});
+
+test("lobsters /t/ai.json returns stories", async () => {
+  const res = await fetch("https://lobste.rs/t/ai.json", {
+    headers: { Accept: "application/json", ...INGEST_UA },
+    signal: AbortSignal.timeout(12000),
+  });
+  assert.equal(res.status, 200);
+  const rows = await res.json();
+  assert.ok(Array.isArray(rows) && rows.length > 0);
+});

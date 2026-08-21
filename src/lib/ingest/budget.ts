@@ -14,7 +14,7 @@ export const PULSE = {
   signalDays: 30,
   insightHours: 24,
   ingestRunDays: 30,
-  fetchBudgetMs: 7000,
+  fetchBudgetMs: 9000,
 } as const;
 
 export type CostLine = {
@@ -62,7 +62,7 @@ export const MONTHLY_COST = {
       typicalUsd: 0,
       cap: "Provider rate limits only",
       use: "1 pulse/day · HN, arXiv, HF, Reddit, RSS",
-      note: "No paid keys. GitHub search is skipped unless a token is present.",
+      note: "No paid keys. GitHub uses search or public trending HTML. Reddit uses Atom. Artificial Analysis cites the public leaderboard if no API key.",
     },
     {
       id: "grok",

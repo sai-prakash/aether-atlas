@@ -287,6 +287,7 @@ export const SOURCE_LABEL: Record<string, string> = {
   "hf-papers": "HF Daily Papers",
   github: "GitHub",
   reddit: "Reddit",
+  lobsters: "Lobsters",
   rss: "Labs RSS",
   aa: "Artificial Analysis",
 };

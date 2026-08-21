@@ -5,7 +5,7 @@ import type { SourceStatus } from "./types";
  * Reddit, GitHub, and Artificial Analysis are optional and never degrade the desk.
  */
 export const CORE_SOURCES = new Set(["hn", "arxiv", "hf-papers", "rss"]);
-export const OPTIONAL_SOURCES = new Set(["hf", "github", "reddit", "aa"]);
+export const OPTIONAL_SOURCES = new Set(["hf", "github", "reddit", "aa", "lobsters"]);
 export const LIVE_NEEDED = 3;
 
 export type IndexHealth = {
@@ -34,7 +34,7 @@ export function healthCopy(h: IndexHealth): string {
   if (h.status === "degraded") {
     return `Firehoses thin: ${h.live} of ${h.needed} core sources (HN, arXiv, HF Daily Papers, lab RSS) returned rows. Rank is still catalog prior. Mentions are shown as weather, not rank.`;
   }
-  return `${h.live} core firehoses live. Rank is catalog prior. Heat is mention counts. Reddit/GitHub/Artificial Analysis are optional and not blended.`;
+  return `${h.live} core firehoses live. Rank is catalog prior. Heat is mention counts. GitHub trending, Reddit Atom, Lobsters, and Artificial Analysis are cited or optional — never blended into rank.`;
 }
 
 export function sourceBadge(st: SourceStatus | undefined): "ok" | "fail" | "skip" | "idle" {

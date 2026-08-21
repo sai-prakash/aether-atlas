@@ -12,8 +12,10 @@ export type RawSignal = {
   entityId: string;
 };
 
-const OPTIONAL = new Set(["github", "reddit", "aa", "hf"]);
+const OPTIONAL = new Set(["github", "reddit", "aa", "hf", "lobsters"]);
 const UA = "Hundred/1.0 (research ingest; +https://thehundred.ai)";
+const BROWSER_UA =
+  "Mozilla/5.0 (compatible; Hundred/1.0; +https://thehundred.ai) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
 const BUDGET_MS = PULSE.fetchBudgetMs;
 
 export async function fetchAllSources(): Promise<{
@@ -27,6 +29,7 @@ export async function fetchAllSources(): Promise<{
     { name: "hf-papers", run: fetchHfPapers },
     { name: "github", run: fetchGithub },
     { name: "reddit", run: fetchReddit },
+    { name: "lobsters", run: fetchLobsters },
     { name: "rss", run: fetchRss },
   ];
 
@@ -74,9 +77,13 @@ async function withTimeout<T>(p: Promise<T>, ms: number, label: string): Promise
   }
 }
 
-async function getText(url: string): Promise<string> {
+async function getText(url: string, extraHeaders?: Record<string, string>): Promise<string> {
   const res = await fetch(url, {
-    headers: { "User-Agent": UA, Accept: "application/json, text/xml, application/xml, text/html;q=0.8" },
+    headers: {
+      "User-Agent": extraHeaders?.["User-Agent"] ?? UA,
+      Accept: "application/json, text/xml, application/xml, application/atom+xml, text/html;q=0.8",
+      ...extraHeaders,
+    },
     signal: AbortSignal.timeout(BUDGET_MS),
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -166,42 +173,52 @@ async function fetchArxiv(): Promise<RawSignal[]> {
 }
 
 async function fetchHf(): Promise<RawSignal[]> {
-  const urls = [
-    "https://huggingface.co/api/models?sort=trendingScore&limit=18&direction=-1",
-    "https://huggingface.co/api/models?sort=likes&limit=18",
+  const attempts: Array<() => Promise<RawSignal[]>> = [
+    async () => {
+      const data = await getJson<{
+        recentlyTrending?: Array<{ repoData?: { id?: string; likes?: number; downloads?: number; pipeline_tag?: string; lastModified?: string } }>;
+      }>("https://huggingface.co/api/trending?limit=18&type=model");
+      const models = (data.recentlyTrending ?? [])
+        .map((row) => row.repoData)
+        .filter((m): m is NonNullable<typeof m> => Boolean(m?.id));
+      if (!models.length) throw new Error("HF trending empty");
+      return models.slice(0, 18).map((m) => hfSignal(m.id!, m));
+    },
+    async () => {
+      const models = await getJson<Array<{ id: string; likes?: number; downloads?: number; pipeline_tag?: string; lastModified?: string }>>(
+        "https://huggingface.co/api/models?sort=trendingScore&limit=18&direction=-1",
+      );
+      if (!Array.isArray(models) || !models.length) throw new Error("HF models empty");
+      return models.slice(0, 18).map((m) => hfSignal(m.id, m));
+    },
   ];
-  let models: Array<{
-    id: string;
-    likes?: number;
-    downloads?: number;
-    pipeline_tag?: string;
-    lastModified?: string;
-  }> | null = null;
   let lastErr = "HF empty";
-  for (const url of urls) {
+  for (const run of attempts) {
     try {
-      models = await getJson(url);
-      if (Array.isArray(models) && models.length) break;
+      const rows = await run();
+      if (rows.length) return rows;
     } catch (err) {
       lastErr = err instanceof Error ? err.message : "HF failed";
-      models = null;
     }
   }
-  if (!models?.length) throw new Error(lastErr);
-  return models.slice(0, 18).map((m) => {
-    const title = m.id;
-    return {
-      source: "hf",
-      title: `Trending model · ${title}`,
-      url: `https://huggingface.co/${title}`,
-      snippet: [m.pipeline_tag, m.downloads ? `${m.downloads} downloads` : "", m.likes ? `${m.likes} likes` : ""]
-        .filter(Boolean)
-        .join(" · "),
-      score: m.likes ?? 0,
-      publishedAt: m.lastModified ?? null,
-      entityId: matchEntity(title.replace(/[-_/]/g, " "), "hf"),
-    };
-  });
+  throw new Error(lastErr);
+}
+
+function hfSignal(
+  id: string,
+  m: { likes?: number; downloads?: number; pipeline_tag?: string; lastModified?: string },
+): RawSignal {
+  return {
+    source: "hf",
+    title: `Trending model · ${id}`,
+    url: `https://huggingface.co/${id}`,
+    snippet: [m.pipeline_tag, m.downloads ? `${m.downloads} downloads` : "", m.likes ? `${m.likes} likes` : ""]
+      .filter(Boolean)
+      .join(" · "),
+    score: m.likes ?? 0,
+    publishedAt: m.lastModified ?? null,
+    entityId: matchEntity(id.replace(/[-_/]/g, " "), "hf"),
+  };
 }
 
 async function fetchHfPapers(): Promise<RawSignal[]> {
@@ -240,73 +257,112 @@ async function fetchHfPapers(): Promise<RawSignal[]> {
 }
 
 async function fetchGithub(): Promise<RawSignal[]> {
-  const token = typeof process !== "undefined" ? process.env.GITHUB_TOKEN : undefined;
-  if (!token) {
-    // Unauthenticated search is 10 req/min and usually 403 from datacenter IPs — skip the spend.
-    throw new Error("skipped (no token)");
-  }
+  const token = typeof process !== "undefined" ? process.env.GITHUB_TOKEN?.trim() : undefined;
   const week = new Date(Date.now() - 7 * 86400_000).toISOString().slice(0, 10);
-  const url =
+  const search =
     `https://api.github.com/search/repositories?q=${encodeURIComponent(
-      `created:>${week} (llm OR "machine learning") stars:>20`,
+      `created:>${week} (llm OR "machine learning" OR transformer) stars:>10`,
     )}&sort=stars&order=desc&per_page=12`;
-  const data = await getJson<{
-    items?: Array<{
-      html_url: string;
-      full_name: string;
-      description: string | null;
-      stargazers_count: number;
-      created_at: string;
-    }>;
-  }>(url, { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json" });
-  return (data.items ?? []).map((r) => ({
+  const apiHeaders: Record<string, string> = {
+    Accept: "application/vnd.github+json",
+    "X-GitHub-Api-Version": "2022-11-28",
+  };
+  if (token) apiHeaders.Authorization = `Bearer ${token}`;
+
+  try {
+    const data = await getJson<{
+      items?: Array<{
+        html_url: string;
+        full_name: string;
+        description: string | null;
+        stargazers_count: number;
+        created_at: string;
+      }>;
+    }>(search, apiHeaders);
+    const items = data.items ?? [];
+    if (items.length) {
+      return items.map((r) => ({
+        source: "github",
+        title: r.full_name,
+        url: r.html_url,
+        snippet: r.description ?? "",
+        score: r.stargazers_count,
+        publishedAt: r.created_at,
+        entityId: matchEntity(`${r.full_name} ${r.description ?? ""}`, "github"),
+      }));
+    }
+  } catch {
+    // Datacenter IPs often 403 search. Fall through to public trending HTML.
+  }
+
+  const html = await getText("https://github.com/trending", { "User-Agent": BROWSER_UA, Accept: "text/html" });
+  const repos = parseGithubTrending(html);
+  if (!repos.length) throw new Error("skipped (github trending empty)");
+  return repos.slice(0, 12).map((full) => ({
     source: "github",
-    title: r.full_name,
-    url: r.html_url,
-    snippet: r.description ?? "",
-    score: r.stargazers_count,
-    publishedAt: r.created_at,
-    entityId: matchEntity(`${r.full_name} ${r.description ?? ""}`, "github"),
+    title: full,
+    url: `https://github.com/${full}`,
+    snippet: "GitHub trending today",
+    score: 1,
+    publishedAt: new Date().toISOString(),
+    entityId: matchEntity(full.replace(/[-_/]/g, " "), "github"),
   }));
 }
 
-async function fetchReddit(): Promise<RawSignal[]> {
-  const subs = ["LocalLLaMA", "MachineLearning"];
-  const out: RawSignal[] = [];
-  const settled = await Promise.allSettled(
-    subs.map(async (sub) => {
-      const data = await getJson<{
-        data?: {
-          children?: Array<{
-            data: {
-              permalink: string;
-              title: string;
-              selftext?: string;
-              score: number;
-              created_utc: number;
-            };
-          }>;
-        };
-      }>(`https://www.reddit.com/r/${sub}/hot.json?limit=8&raw_json=1`);
-      return (data.data?.children ?? [])
-        .map((child) => child.data)
-        .filter((p) => p?.title)
-        .map((p) => ({
-          source: "reddit" as const,
-          title: p.title,
-          url: `https://www.reddit.com${p.permalink}`,
-          snippet: (p.selftext ?? "").slice(0, 240),
-          score: p.score ?? 0,
-          publishedAt: new Date(p.created_utc * 1000).toISOString(),
-          entityId: matchEntity(p.title, "reddit"),
-        }));
-    }),
-  );
-  for (const r of settled) {
-    if (r.status === "fulfilled") out.push(...r.value);
+export function parseGithubTrending(html: string): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  const re = /<h2[^>]*>\s*<a[^>]+href="\/([A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+)"/g;
+  for (const m of html.matchAll(re)) {
+    const full = m[1];
+    if (!full || seen.has(full)) continue;
+    if (full.startsWith("apps/") || full.startsWith("settings/") || full.startsWith("orgs/")) continue;
+    seen.add(full);
+    out.push(full);
   }
-  if (out.length === 0) throw new Error("skipped (reddit blocked from this host)");
   return out;
+}
+
+async function fetchReddit(): Promise<RawSignal[]> {
+  // JSON API is 403 from datacenters. Public Atom still answers.
+  const xml = await getText("https://www.reddit.com/r/LocalLLaMA/.rss", {
+    Accept: "application/atom+xml, application/rss+xml, application/xml, text/xml",
+  });
+  const entries = parseAtomEntries(xml).slice(0, 12);
+  if (!entries.length) throw new Error("skipped (reddit rss empty)");
+  return entries.map((e) => ({
+    source: "reddit",
+    title: e.title,
+    url: e.link.startsWith("http") ? e.link : `https://www.reddit.com${e.link}`,
+    snippet: e.snippet.slice(0, 240),
+    score: 1,
+    publishedAt: e.date,
+    entityId: matchEntity(e.title, "reddit"),
+  }));
+}
+
+async function fetchLobsters(): Promise<RawSignal[]> {
+  const rows = await getJson<
+    Array<{
+      short_id: string;
+      title: string;
+      url?: string;
+      created_at: string;
+      score?: number;
+      tags?: string[];
+      description?: string;
+    }>
+  >("https://lobste.rs/t/ai.json");
+  if (!Array.isArray(rows) || !rows.length) throw new Error("lobsters empty");
+  return rows.slice(0, 16).map((r) => ({
+    source: "lobsters",
+    title: r.title,
+    url: r.url || `https://lobste.rs/s/${r.short_id}`,
+    snippet: (r.tags ?? []).join(" · "),
+    score: r.score ?? 0,
+    publishedAt: r.created_at,
+    entityId: matchEntity(r.title, "lobsters"),
+  }));
 }
 
 async function fetchRss(): Promise<RawSignal[]> {
@@ -314,6 +370,7 @@ async function fetchRss(): Promise<RawSignal[]> {
     "https://openai.com/news/rss.xml",
     "https://huggingface.co/blog/feed.xml",
     "https://blog.google/technology/ai/rss/",
+    "https://deepmind.google/blog/rss.xml",
   ];
   const settled = await Promise.allSettled(
     feeds.map(async (feed) => {
@@ -348,6 +405,20 @@ async function fetchRss(): Promise<RawSignal[]> {
   return out;
 }
 
+function parseAtomEntries(xml: string): Array<{ title: string; link: string; date: string | null; snippet: string }> {
+  const chunks = xml.split("<entry>").slice(1);
+  const out: Array<{ title: string; link: string; date: string | null; snippet: string }> = [];
+  for (const raw of chunks) {
+    const title = decode(tag(raw, "title") || cdata(raw, "title")).replace(/\s+/g, " ").trim();
+    const link = href(raw) || tag(raw, "link") || tag(raw, "id");
+    const date = tag(raw, "updated") || tag(raw, "published") || tag(raw, "pubDate");
+    const snippet = decode(strip(tag(raw, "content") || tag(raw, "summary") || tag(raw, "description"))).slice(0, 240);
+    if (!title || !link) continue;
+    out.push({ title, link, date: date || null, snippet });
+  }
+  return out;
+}
+
 function tag(xml: string, name: string): string {
   const re = new RegExp(`<${name}[^>]*>([\\s\\S]*?)</${name}>`, "i");
   const m = xml.match(re);
@@ -361,18 +432,23 @@ function cdata(xml: string, name: string): string {
 }
 
 function href(xml: string): string {
+  const alt =
+    xml.match(/<link[^>]+rel=["']alternate["'][^>]+href=["']([^"']+)["']/i) ||
+    xml.match(/<link[^>]+href=["']([^"']+)["'][^>]*rel=["']alternate["']/i);
+  if (alt?.[1]) return alt[1].trim();
   const m = xml.match(/<link[^>]+href=["']([^"']+)["']/i) || xml.match(/<link>([^<]+)<\/link>/i);
   return m?.[1]?.trim() ?? "";
 }
 
 function decode(s: string): string {
+  const amp = "\u0026";
   return s
     .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, "$1")
-    .replace(/&/g, "&")
-    .replace(/</g, "<")
-    .replace(/>/g, ">")
-    .replace(/"/g, '"')
-    .replace(/&#39;/g, "'")
+    .replace(new RegExp(`${amp}amp;`, "g"), "&")
+    .replace(new RegExp(`${amp}lt;`, "g"), "<")
+    .replace(new RegExp(`${amp}gt;`, "g"), ">")
+    .replace(new RegExp(`${amp}quot;`, "g"), '"')
+    .replace(new RegExp(`${amp}#39;`, "g"), "'")
     .replace(/<[^>]+>/g, "");
 }
 
