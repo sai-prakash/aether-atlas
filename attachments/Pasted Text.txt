@@ -1,18 +1,47 @@
-Clean slate. Here's what I'd actually do.
+Going deeper on each, with the mechanism rather than just the prescription.
 
-**Reposition from ranking to measuring.** Right now it claims to rank AI tools, which puts it against Artificial Analysis, LMArena, and every directory on the internet — and 42% of the score is borrowed from those rankings anyway, so it's a lagging echo of its own competitors. Drop the editorial prior entirely and make one narrow honest claim: *this measures attention, not quality.* Nobody owns "what is the field actually looking at right now." That lane is empty, the data is already being collected, and it stops inviting the comparison it loses.
+**Why "attention" beats "ranking"**
 
-**The delta is the product, not the index.** No one revisits a leaderboard. People revisit movement. Gainers/fades and Drift are buried below the fold — they should be the homepage. Lead with what moved and why, rank second.
+Your claim should never be stronger than your instrumentation supports. Ranking *quality* requires either running your own evals — GPU budget, which Artificial Analysis and LMArena have — or borrowing theirs, which is what the 42% editorial prior does. Borrowed authority means you're structurally a lagging copy of the people you're competing with, and you can never win an argument about your own numbers.
 
-**The moat is the time series.** Publish every daily snapshot to a public repo, one commit a day, JSON and CSV. Attention data can't be backfilled — a year of clean daily snapshots is something nobody else has and anyone can cite. Honestly the dataset repo is worth more than the site, and it earns stars, citations, and links while you sleep.
+Measuring *attention* requires only public firehoses, which is exactly the data you have. The claim and the pipeline match. And it's unfalsifiable in the good sense: nobody can tell you you're wrong about what the field talked about last week, whereas "Qwen3 is the #4 best AI thing" invites an argument you lose on methodology.
 
-**Then two launches, in this order:**
+There's also a real audience for attention data specifically — investors sizing a category, devrel teams checking share of voice, founders positioning against incumbents, journalists looking for a story. Those people check repeatedly, which quality rankings don't require.
 
-1. *The architecture post.* "A daily-updating AI index for $0.18 a month, no paid APIs." Devs love a cheap elegant pipeline, and this one genuinely is. Aim it at HN.
-2. *A finding.* One surprising chart from your own data — something collapsing or spiking that nobody noticed. Publish the finding; the site is supporting material.
+**Why movement is the homepage**
 
-Never launch it as a directory. "Another AI tools list" gets flamed on sight. Findings get upvoted.
+Leaderboards have a structural engagement flaw: the top is stable by construction. Transformer and Diffusion will sit at #1 and #2 for years. Someone visiting weekly sees an identical page, so there's no reason to return.
 
-**Then the compounding stuff:** entity pages are 101 long-tail SEO surfaces, but only if each has a chart nobody else can show. Put an embed button on every one — embedded charts are how Artificial Analysis ended up in everyone's slides. And ship one short weekly post; rankings don't earn return visits, cadence does.
+Movement is the only part that changes. It's also the only shareable unit — nobody screenshots a ranking, but people screenshot "computer use is up 86%." Your existing data already tells a story: computer use +86, Together AI +65, Qwen3 +54, while the LoRA paper, Midjourney, and LlamaIndex all fade about 27. That's agentic infrastructure rising as 2023-era finetuning primitives cool. That's a headline sitting unused below the fold.
 
-**Two honest constraints.** Fix 3/6 sources first — a site whose pitch is "every number is sourced" running at half coverage fails on its own terms. And the value curve here is brutal: this is worth little at month one and a lot at month twelve, because the asset is uninterrupted history. A dataset with gaps is worth a fraction of one without. So the real question isn't whether it's a good idea — it's whether the pulse runs every day for a year.
+**Why the dataset is the actual moat**
+
+This is the strongest structural argument in the whole project, so it's worth being precise about it.
+
+Attention data is destroyed as it's created. Today's HN front page is gone tomorrow. Cross-source mention velocity for a given week cannot be reconstructed after the fact at any price. So a competitor who launches in month twelve starts at zero history while you have 365 days — and unlike features, design, or catalog size, that gap cannot be closed by working harder.
+
+Publishing it publicly does four things at once: it proves the sourcing claim, it earns GitHub stars (a durable distribution asset), it gets cited in posts and papers (backlinks you didn't have to ask for), and it makes you useful to people who never visit the site — which is fine, because they link to it. The counterintuitive part is that giving the data away raises the site's value rather than cannibalizing it. The scarce thing isn't the data. It's being the canonical source of it.
+
+Mechanically: daily JSON snapshot, append-only CSV, one automated commit per day. No maintenance once wired.
+
+**Why launch order matters**
+
+Lead with the architecture post because it's the highest-odds, lowest-risk launch you have. "$0.18 a month" is concrete, surprising, and verifiable, and HN reliably rewards cheap elegant infrastructure. Critically, it works on day one — it doesn't require the data to be interesting yet. It also establishes that you build carefully *before* you make any claims about the field, which buys you credibility for everything after.
+
+The finding post comes second because findings need baseline. A "surprising trend" at week one is noise and someone will say so. At month three it's defensible.
+
+The general rule: a directory launch invites "why does this exist," which is the worst possible first comment. An architecture post invites "how did you get it that cheap," which is an engaged one.
+
+**How the compounding actually works**
+
+101 entity pages are 101 long-tail search surfaces — but only if each has something unrepeatable. A page restating what Qwen3 is will lose to Alibaba's own site and Wikipedia forever. A page with twelve months of attention history for Qwen3 has something that exists nowhere else. The dataset is what makes the SEO work; without it the entity pages are filler.
+
+Embeds are the same trick pointed outward. Artificial Analysis became ubiquitous because their charts ended up in other people's decks and posts, each one carrying attribution. An embed is a backlink placed by someone else, at their initiative. Make it one click and lightly branded.
+
+The weekly post is about cadence, not quality — five bullets and a chart. Habit drives return traffic, and it's the only path to an email list, which is the sole distribution channel you'd actually own.
+
+**What could kill it**
+
+Worth naming honestly. The category is a graveyard — most AI directories die within a year. Mention velocity is noisy and gameable; one viral post can distort a week, so you'd need smoothing and outlier handling or the numbers become embarrassing. Catalog maintenance is real recurring work, since models launch constantly and a stale catalog is worse than no catalog. And the whole attention-data thesis may simply not have enough demand behind it.
+
+Then the operational one, which is the real risk: this is worth little at month one and a lot at month twelve, and the entire difference is uninterrupted history. The way it dies is quietly — the pulse breaks in month three, nobody notices until month five, and now there's a permanent hole. So it has to be fully automated with no human in the loop, it has to alert loudly when a pulse fails, and gaps must be visible in the data rather than silently interpolated. A dataset with unexplained holes is worth a fraction of a clean one.

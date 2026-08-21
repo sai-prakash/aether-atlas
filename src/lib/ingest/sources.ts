@@ -324,21 +324,37 @@ export function parseGithubTrending(html: string): string[] {
 }
 
 async function fetchReddit(): Promise<RawSignal[]> {
-  // JSON API is 403 from datacenters. Public Atom still answers.
-  const xml = await getText("https://www.reddit.com/r/LocalLLaMA/.rss", {
-    Accept: "application/atom+xml, application/rss+xml, application/xml, text/xml",
-  });
-  const entries = parseAtomEntries(xml).slice(0, 12);
-  if (!entries.length) throw new Error("skipped (reddit rss empty)");
-  return entries.map((e) => ({
-    source: "reddit",
-    title: e.title,
-    url: e.link.startsWith("http") ? e.link : `https://www.reddit.com${e.link}`,
-    snippet: e.snippet.slice(0, 240),
-    score: 1,
-    publishedAt: e.date,
-    entityId: matchEntity(e.title, "reddit"),
-  }));
+  // JSON is 403 from datacenters. Atom sometimes is too — try public mirrors in order.
+  const urls = [
+    "https://www.reddit.com/r/LocalLLaMA/.rss",
+    "https://old.reddit.com/r/LocalLLaMA/.rss",
+    "https://www.reddit.com/r/MachineLearning/.rss",
+  ];
+  let last = "reddit blocked";
+  for (const url of urls) {
+    try {
+      const xml = await getText(url, {
+        "User-Agent": BROWSER_UA,
+        Accept: "application/atom+xml, application/rss+xml, application/xml, text/xml",
+      });
+      const entries = parseAtomEntries(xml).slice(0, 12);
+      if (entries.length) {
+        return entries.map((e) => ({
+          source: "reddit",
+          title: e.title,
+          url: e.link.startsWith("http") ? e.link : `https://www.reddit.com${e.link}`,
+          snippet: e.snippet.slice(0, 240),
+          score: 1,
+          publishedAt: e.date,
+          entityId: matchEntity(e.title, "reddit"),
+        }));
+      }
+      last = "reddit rss empty";
+    } catch (err) {
+      last = err instanceof Error ? err.message : "reddit failed";
+    }
+  }
+  throw new Error(`skipped (${last.slice(0, 80)})`);
 }
 
 async function fetchLobsters(): Promise<RawSignal[]> {

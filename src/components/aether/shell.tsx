@@ -36,6 +36,7 @@ const MORE = [
   { to: "/distribute", label: "Distribute", icon: Send },
   { to: "/signals", label: "Signals", icon: Radio },
   { to: "/archive", label: "Archive", icon: BookOpen },
+  { to: "/lab", label: "Lab", icon: Layers },
   { to: "/methods", label: "Methods", icon: Layers },
   { to: "/compare", label: "Compare", icon: GitCompare },
 ] as const;
@@ -48,6 +49,7 @@ function isActive(pathname: string, to: string) {
 export function Shell({ children }: { children: React.ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [cmd, setCmd] = useState(false);
+  if (pathname.startsWith("/embed/")) return <>{children}</>;
 
   return (
     <div className="min-h-dvh bg-bg text-fg">

@@ -110,6 +110,10 @@ function EntityPage() {
           <p className="mt-2 text-[11px] text-subtle">
             {entity.verifiedAt ? `Verified ${entity.verifiedAt.slice(0, 10)}` : "Unverified"}
           </p>
+          <p className="mt-3 text-left text-[11px] text-subtle">Embed mentions spark</p>
+          <code className="mt-1 block max-w-xs truncate rounded bg-elevated px-2 py-1 text-left text-[10px] text-muted">
+            {`<iframe src="${SITE.url}/embed/${entity.id}" width="480" height="160" title="${entity.name} mentions"></iframe>`}
+          </code>
         </div>
       </header>
 

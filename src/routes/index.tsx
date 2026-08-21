@@ -32,6 +32,9 @@ function Observatory() {
   const health = data.health;
   const degraded = health.status !== "live";
   const letterGraf = WEEK_LETTER.body.split("\n\n")[0];
+  const day = data.iraDay;
+  const headline = day?.letter.title ?? WEEK_LETTER.title;
+  const dek = day?.letter.dek ?? letterGraf;
 
   return (
     <div className="mx-auto max-w-6xl stagger-in">
@@ -40,18 +43,18 @@ function Observatory() {
           {SITE.editor} · {SITE.editorTitle}
         </p>
         <h1 className="mt-2 font-display text-4xl italic tracking-tight text-fg sm:text-5xl">
-          {WEEK_LETTER.title}
+          {headline}
         </h1>
-        <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted">{letterGraf}</p>
+        <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted">{dek}</p>
         <p className="mt-4 flex flex-wrap gap-4 text-sm">
           <Link to="/week" className="text-accent hover:underline">
             This week’s letter
           </Link>
-          <Link to="/ira" className="text-muted hover:text-fg">
-            Masthead
+          <Link to="/archive" className="text-muted hover:text-fg">
+            Archive
           </Link>
-          <Link to="/refusals" className="text-muted hover:text-fg">
-            Kill-list
+          <Link to="/lab" className="text-muted hover:text-fg">
+            How it runs
           </Link>
         </p>
       </header>
@@ -78,6 +81,41 @@ function Observatory() {
           }
         />
       </section>
+
+      {leadMover && !degraded ? (
+        <section className="mt-6 rounded-xl bg-surface p-5 shadow-[var(--shadow-border)]">
+          <p className="text-[11px] uppercase tracking-[0.16em] text-subtle">
+            Most mentioned · {windowLabel(window)} · not quality
+          </p>
+          <div className="mt-2 flex flex-wrap items-baseline gap-3">
+            <Link
+              to="/e/$slug"
+              params={{ slug: leadMover.entity.id }}
+              className="font-display text-3xl italic tracking-tight hover:text-accent"
+            >
+              {leadMover.entity.name}
+            </Link>
+            <span className="tabular text-sm text-muted">{leadMover.delta} mentions</span>
+          </div>
+          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted">{leadMover.entity.tagline}</p>
+          {data.movers.length > 1 ? (
+            <ul className="mt-4 grid gap-1 sm:grid-cols-2">
+              {data.movers.slice(1, 7).map((m) => (
+                <li key={m.entity.id}>
+                  <Link
+                    to="/e/$slug"
+                    params={{ slug: m.entity.id }}
+                    className="flex items-center justify-between py-1 text-sm hover:text-accent"
+                  >
+                    <span>{m.entity.name}</span>
+                    <span className="tabular text-xs text-muted">{m.delta}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          ) : null}
+        </section>
+      ) : null}
 
       {data.changelog.length ? (
         <section className="mt-8">
@@ -108,25 +146,6 @@ function Observatory() {
               </li>
             ))}
           </ul>
-        </section>
-      ) : null}
-
-      {leadMover && !degraded ? (
-        <section className="mt-6 rounded-xl bg-surface p-5 shadow-[var(--shadow-border)]">
-          <p className="text-[11px] uppercase tracking-[0.16em] text-subtle">
-            Most mentioned · {windowLabel(window)}
-          </p>
-          <div className="mt-2 flex flex-wrap items-baseline gap-3">
-            <Link
-              to="/e/$slug"
-              params={{ slug: leadMover.entity.id }}
-              className="font-display text-3xl italic tracking-tight hover:text-accent"
-            >
-              {leadMover.entity.name}
-            </Link>
-            <span className="tabular text-sm text-muted">{leadMover.delta} mentions</span>
-          </div>
-          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted">{leadMover.entity.tagline}</p>
         </section>
       ) : null}
 

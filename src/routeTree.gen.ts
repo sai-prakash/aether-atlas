@@ -18,6 +18,7 @@ import { Route as DistributeRouteImport } from './routes/distribute'
 import { Route as DriftRouteImport } from './routes/drift'
 import { Route as FeedDotxmlRouteImport } from './routes/feed[.]xml'
 import { Route as IraRouteImport } from './routes/ira'
+import { Route as LabRouteImport } from './routes/lab'
 import { Route as LensRouteImport } from './routes/lens'
 import { Route as MethodRouteImport } from './routes/method'
 import { Route as MethodsRouteImport } from './routes/methods'
@@ -37,6 +38,7 @@ import { Route as ApiDayDotjsonRouteImport } from './routes/api/day[.]json'
 import { Route as ApiPublishRouteImport } from './routes/api/publish'
 import { Route as ApiThreadDotjsonRouteImport } from './routes/api/thread[.]json'
 import { Route as ESlugRouteImport } from './routes/e.$slug'
+import { Route as EmbedSlugRouteImport } from './routes/embed.$slug'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -81,6 +83,11 @@ const FeedDotxmlRoute = FeedDotxmlRouteImport.update({
 const IraRoute = IraRouteImport.update({
   id: '/ira',
   path: '/ira',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LabRoute = LabRouteImport.update({
+  id: '/lab',
+  path: '/lab',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LensRoute = LensRouteImport.update({
@@ -178,6 +185,11 @@ const ESlugRoute = ESlugRouteImport.update({
   path: '/e/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EmbedSlugRoute = EmbedSlugRouteImport.update({
+  id: '/embed/$slug',
+  path: '/embed/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -189,6 +201,7 @@ export interface FileRoutesByFullPath {
   '/drift': typeof DriftRoute
   '/feed.xml': typeof FeedDotxmlRoute
   '/ira': typeof IraRoute
+  '/lab': typeof LabRoute
   '/lens': typeof LensRoute
   '/method': typeof MethodRoute
   '/methods': typeof MethodsRoute
@@ -208,6 +221,7 @@ export interface FileRoutesByFullPath {
   '/api/publish': typeof ApiPublishRoute
   '/api/thread.json': typeof ApiThreadDotjsonRoute
   '/e/$slug': typeof ESlugRoute
+  '/embed/$slug': typeof EmbedSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -219,6 +233,7 @@ export interface FileRoutesByTo {
   '/drift': typeof DriftRoute
   '/feed.xml': typeof FeedDotxmlRoute
   '/ira': typeof IraRoute
+  '/lab': typeof LabRoute
   '/lens': typeof LensRoute
   '/method': typeof MethodRoute
   '/methods': typeof MethodsRoute
@@ -238,6 +253,7 @@ export interface FileRoutesByTo {
   '/api/publish': typeof ApiPublishRoute
   '/api/thread.json': typeof ApiThreadDotjsonRoute
   '/e/$slug': typeof ESlugRoute
+  '/embed/$slug': typeof EmbedSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -250,6 +266,7 @@ export interface FileRoutesById {
   '/drift': typeof DriftRoute
   '/feed.xml': typeof FeedDotxmlRoute
   '/ira': typeof IraRoute
+  '/lab': typeof LabRoute
   '/lens': typeof LensRoute
   '/method': typeof MethodRoute
   '/methods': typeof MethodsRoute
@@ -269,6 +286,7 @@ export interface FileRoutesById {
   '/api/publish': typeof ApiPublishRoute
   '/api/thread.json': typeof ApiThreadDotjsonRoute
   '/e/$slug': typeof ESlugRoute
+  '/embed/$slug': typeof EmbedSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -282,6 +300,7 @@ export interface FileRouteTypes {
     | '/drift'
     | '/feed.xml'
     | '/ira'
+    | '/lab'
     | '/lens'
     | '/method'
     | '/methods'
@@ -301,6 +320,7 @@ export interface FileRouteTypes {
     | '/api/publish'
     | '/api/thread.json'
     | '/e/$slug'
+    | '/embed/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -312,6 +332,7 @@ export interface FileRouteTypes {
     | '/drift'
     | '/feed.xml'
     | '/ira'
+    | '/lab'
     | '/lens'
     | '/method'
     | '/methods'
@@ -331,6 +352,7 @@ export interface FileRouteTypes {
     | '/api/publish'
     | '/api/thread.json'
     | '/e/$slug'
+    | '/embed/$slug'
   id:
     | '__root__'
     | '/'
@@ -342,6 +364,7 @@ export interface FileRouteTypes {
     | '/drift'
     | '/feed.xml'
     | '/ira'
+    | '/lab'
     | '/lens'
     | '/method'
     | '/methods'
@@ -361,6 +384,7 @@ export interface FileRouteTypes {
     | '/api/publish'
     | '/api/thread.json'
     | '/e/$slug'
+    | '/embed/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -373,6 +397,7 @@ export interface RootRouteChildren {
   DriftRoute: typeof DriftRoute
   FeedDotxmlRoute: typeof FeedDotxmlRoute
   IraRoute: typeof IraRoute
+  LabRoute: typeof LabRoute
   LensRoute: typeof LensRoute
   MethodRoute: typeof MethodRoute
   MethodsRoute: typeof MethodsRoute
@@ -392,6 +417,7 @@ export interface RootRouteChildren {
   ApiPublishRoute: typeof ApiPublishRoute
   ApiThreadDotjsonRoute: typeof ApiThreadDotjsonRoute
   ESlugRoute: typeof ESlugRoute
+  EmbedSlugRoute: typeof EmbedSlugRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -457,6 +483,13 @@ declare module '@tanstack/react-router' {
       path: '/ira'
       fullPath: '/ira'
       preLoaderRoute: typeof IraRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lab': {
+      id: '/lab'
+      path: '/lab'
+      fullPath: '/lab'
+      preLoaderRoute: typeof LabRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lens': {
@@ -592,6 +625,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ESlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/embed/$slug': {
+      id: '/embed/$slug'
+      path: '/embed/$slug'
+      fullPath: '/embed/$slug'
+      preLoaderRoute: typeof EmbedSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -605,6 +645,7 @@ const rootRouteChildren: RootRouteChildren = {
   DriftRoute: DriftRoute,
   FeedDotxmlRoute: FeedDotxmlRoute,
   IraRoute: IraRoute,
+  LabRoute: LabRoute,
   LensRoute: LensRoute,
   MethodRoute: MethodRoute,
   MethodsRoute: MethodsRoute,
@@ -624,6 +665,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublishRoute: ApiPublishRoute,
   ApiThreadDotjsonRoute: ApiThreadDotjsonRoute,
   ESlugRoute: ESlugRoute,
+  EmbedSlugRoute: EmbedSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

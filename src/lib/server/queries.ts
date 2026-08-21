@@ -70,6 +70,7 @@ function dashboardFrom(pulse: PulsePayload, window: TimeWindow): Dashboard {
     health,
     changelog: pulse.changelog ?? [],
     byKind,
+    iraDay: pulse.iraDay,
   };
 }
 

@@ -228,6 +228,7 @@ export type Dashboard = {
   health: import("./health").IndexHealth;
   changelog: ChangelogEntry[];
   byKind: { kind: Kind; leaders: Entity[] }[];
+  iraDay?: import("../ira/day").DayRecord;
 };
 
 export type PulsePayload = {

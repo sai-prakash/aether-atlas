@@ -12,9 +12,9 @@ export const SITE = {
     (typeof process !== "undefined" && process.env.EDITOR_NAME?.trim()) || "Ira Prior",
   editorTitle: "AI editor",
   verifiedAsOf: "21 Aug 2026",
-  tagline: "The hundred that matter.",
+  tagline: "Mention weather for a hundred names.",
   description:
-    "Ira Prior, AI editor, signs a map of ~100 AI tools, models, techniques, and workflows. Rank is catalog prior, per kind. Mentions are a count. Receipts have dates. JSON and RSS are public.",
+    "A signed working set of ~100 AI names. Daily mention counts from public firehoses. Rank is catalog prior, not Elo. Missing days are holes.",
 } as const;
 
 export function absoluteUrl(path: string): string {
