@@ -14,9 +14,9 @@ export const Route = createFileRoute("/rankings")({
     return out;
   },
   loaderDeps: ({ search }) => ({
-    kind: search.kind ?? "",
+    kind: search.kind ?? "model",
     license: search.license ?? "",
-    window: search.window ?? "24h",
+    window: search.window ?? "7d",
   }),
   loader: ({ deps }) => getRankings({ data: deps }),
   component: Rankings,
@@ -32,9 +32,10 @@ function Rankings() {
       <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-[11px] uppercase tracking-[0.18em] text-subtle">Rankings</p>
-          <h1 className="mt-2 font-display text-4xl italic">The board.</h1>
+          <h1 className="mt-2 font-display text-4xl italic">Per kind.</h1>
           <p className="mt-2 max-w-xl text-sm text-muted">
-            Rank deltas versus the selected window. Index is comparable across kinds; use filters to isolate a field.
+            Editorial map rank within a kind. Not a cross-kind index — Diffusion is not comparable to
+            Cursor. Number is catalog prior (0–100). Heat is 7-day mentions, shown only as a count.
           </p>
         </div>
         <WindowToggle value={search.window ?? "24h"} />
@@ -48,7 +49,7 @@ function Rankings() {
             onClick={() => nav({ search: { ...search, kind: o.id } })}
             className={cn(
               "min-h-8 rounded-full px-3 text-xs font-medium shadow-[var(--shadow-border)]",
-              search.kind === o.id || (!search.kind && o.id === "") ? "bg-accent text-accent-fg" : "bg-elevated text-muted",
+              search.kind === o.id || (!search.kind && o.id === "model") ? "bg-accent text-accent-fg" : "bg-elevated text-muted",
             )}
           >
             {o.label}

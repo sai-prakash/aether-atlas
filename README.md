@@ -8,7 +8,9 @@ A living atlas of AI — tools, models, papers, techniques, workflows, and ranki
 
 ## What it is
 
-Aether is an observatory, not a directory dump.
+Aether is an **editorial map** of ~100 names, re-verified with dates and receipts — not a live composite index. Rank is catalog prior, per kind. Heat is a mention count and is gated when firehoses are dark.
+
+[Observatory](#what-it-is) · [Deploy](#deploy-on-the-free-tier) · [Cost](#estimated-month) · [How it works](#how-the-desk-works)
 
 - **Observatory** — Aether Index, movers, live signals, daily brief
 - **Atlas** — every entity by kind, license, category

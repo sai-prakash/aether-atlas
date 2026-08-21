@@ -48,8 +48,10 @@ export function EntityRow({
         </span>
       </div>
       <div className="flex flex-col items-end">
-        <span className="tabular text-sm font-medium text-fg">{entity.score.toFixed(1)}</span>
-        <Delta value={entity.momentum} />
+        <span className="tabular text-sm font-medium text-fg">{entity.catalogWeight.toFixed(0)}</span>
+        <span className="text-[10px] uppercase tracking-wide text-subtle">
+          {entity.mentions7d ? `${entity.mentions7d} 7d` : "map"}
+        </span>
       </div>
     </Link>
   );
@@ -71,8 +73,10 @@ export function EntityCard({ entity }: { entity: Entity }) {
           </div>
         </div>
         <div className="text-right">
-          <p className="tabular text-sm font-medium">{entity.score.toFixed(1)}</p>
-          <Delta value={entity.momentum} />
+          <p className="tabular text-sm font-medium">{entity.catalogWeight.toFixed(0)}</p>
+          <p className="text-[10px] uppercase tracking-wide text-subtle">
+            {entity.status === "historic" ? "historic" : entity.mentions7d ? `${entity.mentions7d} 7d` : "map"}
+          </p>
         </div>
       </div>
       <p className="line-clamp-2 text-xs leading-relaxed text-muted">{entity.tagline}</p>

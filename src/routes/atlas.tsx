@@ -26,7 +26,7 @@ export const Route = createFileRoute("/atlas")({
     kind: search.kind ?? "",
     license: search.license ?? "",
     category: search.category ?? "",
-    sort: search.sort ?? "score",
+    sort: search.sort ?? "map",
   }),
   loader: ({ deps }) => listEntities({ data: deps }),
   component: Atlas,

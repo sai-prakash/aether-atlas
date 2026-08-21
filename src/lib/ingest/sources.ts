@@ -114,7 +114,7 @@ async function fetchHn(): Promise<RawSignal[]> {
       snippet: (hit.story_text ?? "").slice(0, 280),
       score: hit.points ?? 0,
       publishedAt: hit.created_at,
-      entityId: matchEntity(`${title} ${hit.url ?? ""}`),
+      entityId: matchEntity(`${title} ${hit.url ?? ""}`, "hn"),
     });
   }
   return out;
@@ -139,7 +139,7 @@ async function fetchArxiv(): Promise<RawSignal[]> {
       snippet: summary.slice(0, 320),
       score: 1,
       publishedAt: published || null,
-      entityId: matchEntity(`${title} ${summary.slice(0, 400)}`),
+      entityId: matchEntity(`${title} ${summary.slice(0, 400)}`, "arxiv"),
     });
   }
   return out;
@@ -166,7 +166,7 @@ async function fetchHf(): Promise<RawSignal[]> {
         .join(" · "),
       score: m.likes ?? 0,
       publishedAt: m.lastModified ?? null,
-      entityId: matchEntity(title.replace(/[-_/]/g, " ")),
+      entityId: matchEntity(title.replace(/[-_/]/g, " "), "hf"),
     };
   });
 }
@@ -200,7 +200,7 @@ async function fetchHfPapers(): Promise<RawSignal[]> {
       snippet: summary.slice(0, 320),
       score: Number(paper.upvotes ?? 0),
       publishedAt: row.publishedAt ?? paper.publishedAt ?? null,
-      entityId: matchEntity(`${title} ${summary.slice(0, 400)}`),
+      entityId: matchEntity(`${title} ${summary.slice(0, 400)}`, "hf-papers"),
     });
   }
   return out;
@@ -233,7 +233,7 @@ async function fetchGithub(): Promise<RawSignal[]> {
     snippet: r.description ?? "",
     score: r.stargazers_count,
     publishedAt: r.created_at,
-    entityId: matchEntity(`${r.full_name} ${r.description ?? ""}`),
+    entityId: matchEntity(`${r.full_name} ${r.description ?? ""}`, "github"),
   }));
 }
 
@@ -265,7 +265,7 @@ async function fetchReddit(): Promise<RawSignal[]> {
           snippet: (p.selftext ?? "").slice(0, 240),
           score: p.score ?? 0,
           publishedAt: new Date(p.created_utc * 1000).toISOString(),
-          entityId: matchEntity(p.title),
+          entityId: matchEntity(p.title, "reddit"),
         }));
     }),
   );
@@ -301,7 +301,7 @@ async function fetchRss(): Promise<RawSignal[]> {
           snippet,
           score: 1,
           publishedAt: date ? new Date(date).toISOString() : null,
-          entityId: matchEntity(title),
+          entityId: matchEntity(title, "rss"),
         });
       }
       return out;

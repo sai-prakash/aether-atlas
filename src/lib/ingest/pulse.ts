@@ -11,6 +11,7 @@ import type {
   SourceStatus,
   TimeWindow,
   CitedMark,
+  ChangelogEntry,
 } from "@/lib/catalog/types";
 import { PULSE } from "./budget";
 
@@ -175,8 +176,8 @@ export async function materializePulse(
   const dayAgo = new Date(now - 86_400_000).toISOString();
   const weekAgo = new Date(now - 7 * 86_400_000).toISOString();
 
-  const [entityRows, signalRows, insightRows, ingest, snapRows, sig24, sig7] = await Promise.all([
-    sql<EntityRow>`select * from entities order by score desc`,
+  const [entityRows, signalRows, insightRows, ingest, snapRows, sig24, sig7, changeRows] = await Promise.all([
+    sql<EntityRow>`select * from entities order by catalog_weight desc, name asc`,
     sql<SignalRow>`
       select * from signals
       order by coalesce(published_at, ingested_at) desc
@@ -190,6 +191,9 @@ export async function materializePulse(
       order by captured_at asc`,
     sql<{ n: number }>`select count(*)::int as n from signals where coalesce(published_at, ingested_at) >= ${dayAgo}`,
     sql<{ n: number }>`select count(*)::int as n from signals where coalesce(published_at, ingested_at) >= ${weekAgo}`,
+    sql<{ entity_id: string; at: string; title: string; body: string; source_url: string }>`
+      select entity_id, at::text as at, title, body, source_url
+      from changelog order by at desc, id desc limit 24`,
   ]);
 
   const snapshots: Record<string, SnapPoint[]> = {};
@@ -205,10 +209,23 @@ export async function materializePulse(
   }
 
   const prev24 = ranksAt(snapshots, WINDOW_HOURS["24h"], now);
+  const kindSeen = new Map<string, number>();
   const entities: Entity[] = entityRows.map((row, i) => {
-    const spark = (snapshots[row.id] ?? []).map((p) => p.score).slice(-14);
-    return mapEntity(row, i + 1, prev24[row.id]?.rank ?? null, spark);
+    const spark = (snapshots[row.id] ?? []).map((p) => p.mentions).slice(-14);
+    const kr = (kindSeen.get(row.kind) ?? 0) + 1;
+    kindSeen.set(row.kind, kr);
+    return mapEntity(row, i + 1, prev24[row.id]?.rank ?? null, spark, kr);
   });
+
+  const names = new Map(entities.map((e) => [e.id, e.name]));
+  const changelog: ChangelogEntry[] = changeRows.map((c) => ({
+    entityId: c.entity_id,
+    entityName: names.get(c.entity_id) ?? c.entity_id,
+    at: String(c.at).slice(0, 10),
+    title: c.title,
+    body: c.body,
+    sourceUrl: c.source_url,
+  }));
 
   const agg = aggregates(entities);
   agg.totals.signals24h = Number(sig24[0]?.n ?? 0);
@@ -235,6 +252,7 @@ export async function materializePulse(
     byCategory: agg.byCategory,
     licenseSplit: agg.licenseSplit,
     citedAa: extra?.citedAa ?? {},
+    changelog,
   };
 
   try {

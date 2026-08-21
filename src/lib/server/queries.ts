@@ -4,6 +4,8 @@ import { ensureCatalog } from "@/lib/catalog/seed";
 import type { Dashboard, Entity, Mover, PulsePayload, TimeWindow } from "@/lib/catalog/types";
 import { windowHours } from "@/lib/catalog/scoring";
 import { buildLens, lineageFor } from "@/lib/catalog/lens";
+import { indexHealth } from "@/lib/catalog/health";
+import type { Kind } from "@/lib/catalog/types";
 import { PULSE } from "@/lib/ingest/budget";
 import { getPulse, patchPulse } from "@/lib/ingest/pulse";
 import { claimPulse, runIngest } from "@/lib/ingest/run";
@@ -43,19 +45,30 @@ function dashboardFrom(pulse: PulsePayload, window: TimeWindow): Dashboard {
     const t = new Date(s.publishedAt ?? s.ingestedAt).getTime();
     return !Number.isNaN(t) && t >= since;
   });
+  const health = indexHealth(pulse.ingest.sources ?? []);
+  const kinds: Kind[] = ["model", "tool", "technique", "workflow", "lab", "paper", "protocol"];
+  const byKind = kinds
+    .map((kind) => ({
+      kind,
+      leaders: ranked.filter((e) => e.kind === kind && e.status !== "deprecated").slice(0, 6),
+    }))
+    .filter((row) => row.leaders.length);
   return {
     generatedAt: pulse.builtAt,
     window,
     totals: pulse.totals,
     ingest: pulse.ingest,
-    leaders: ranked.slice(0, 24),
-    movers: movers.filter((m) => m.delta > 0).slice(0, 8),
-    losers: movers.filter((m) => m.delta < 0).sort((a, b) => a.delta - b.delta).slice(0, 6),
+    leaders: ranked.filter((e) => e.status !== "deprecated").slice(0, 24),
+    movers: health.status === "live" ? movers.filter((m) => m.delta > 0).slice(0, 8) : [],
+    losers: health.status === "live" ? movers.filter((m) => m.delta < 0).sort((a, b) => a.delta - b.delta).slice(0, 6) : [],
     byCategory: pulse.byCategory,
     licenseSplit: pulse.licenseSplit,
     signals: signals.slice(0, 24),
     insight: pulse.insight,
     lens: buildLens(ranked, pulse.signals, pulse.citedAa),
+    health,
+    changelog: pulse.changelog ?? [],
+    byKind,
   };
 }
 
@@ -74,7 +87,7 @@ export const listEntities = createServerFn({ method: "GET" })
     kind: input?.kind ?? "",
     license: input?.license ?? "",
     category: input?.category ?? "",
-    sort: input?.sort === "momentum" || input?.sort === "mentions" ? input.sort : "score",
+    sort: input?.sort === "momentum" || input?.sort === "mentions" || input?.sort === "score" ? input.sort : "map",
   }))
   .handler(async ({ data }) => {
     const pulse = await desk();
@@ -90,9 +103,10 @@ export const listEntities = createServerFn({ method: "GET" })
       return true;
     });
     filtered.sort((a, b) => {
-      if (data.sort === "momentum") return b.momentum - a.momentum;
-      if (data.sort === "mentions") return b.mentions24h - a.mentions24h;
-      return b.score - a.score;
+      if (data.sort === "momentum") return b.mentions24h - a.mentions24h;
+      if (data.sort === "mentions") return b.mentions7d - a.mentions7d;
+      if (data.sort === "score") return b.score - a.score;
+      return b.catalogWeight - a.catalogWeight;
     });
     return withPrev(filtered, pulse.prev["24h"] ?? {});
   });
@@ -119,6 +133,7 @@ export const getEntity = createServerFn({ method: "GET" })
       })),
       uses: graph.uses,
       usedBy: graph.usedBy,
+      changelog: (pulse.changelog ?? []).filter((c) => c.entityId === entity.id),
     };
   });
 
@@ -150,9 +165,10 @@ export const getRankings = createServerFn({ method: "GET" })
     const filtered = pulse.entities.filter((e) => {
       if (data.kind && e.kind !== data.kind) return false;
       if (data.license && e.license !== data.license) return false;
-      return true;
+      return e.status !== "deprecated";
     });
-    return withPrev(filtered, pulse.prev[data.window] ?? {});
+    const sorted = [...filtered].sort((a, b) => b.catalogWeight - a.catalogWeight);
+    return withPrev(sorted, pulse.prev[data.window] ?? {});
   });
 
 export const searchAll = createServerFn({ method: "GET" })
@@ -195,7 +211,11 @@ export const getDrift = createServerFn({ method: "GET" })
           const ts = new Date(p.at).getTime();
           return !Number.isNaN(ts) && ts >= since;
         })
-        .map((p) => ({ at: typeof p.at === "string" ? p.at : new Date(p.at).toISOString(), score: p.score, rank: p.rank })),
+        .map((p) => ({
+          at: typeof p.at === "string" ? p.at : new Date(p.at).toISOString(),
+          score: p.mentions,
+          rank: p.rank,
+        })),
     }));
     const prev = pulse.prev[data.window] ?? {};
     const now = withPrev(pulse.entities, prev);
@@ -318,5 +338,34 @@ export const getLens = createServerFn({ method: "GET" }).handler(async () => {
     builtAt: pulse.builtAt,
     ingest: pulse.ingest,
     ...buildLens(pulse.entities, pulse.signals, pulse.citedAa),
+  };
+});
+
+export const getAtlasExport = createServerFn({ method: "GET" }).handler(async () => {
+  const pulse = await desk();
+  return {
+    generatedAt: pulse.builtAt,
+    health: indexHealth(pulse.ingest.sources ?? []),
+    entities: pulse.entities.map((e) => ({
+      id: e.id,
+      kind: e.kind,
+      name: e.name,
+      tagline: e.tagline,
+      license: e.license,
+      vendor: e.vendor,
+      website: e.website,
+      github: e.github,
+      paperUrl: e.paperUrl,
+      categories: e.categories,
+      techniques: e.techniques,
+      pricing: e.pricing,
+      catalogWeight: e.catalogWeight,
+      aliases: e.aliases,
+      status: e.status,
+      verifiedAt: e.verifiedAt,
+      spec: e.spec,
+      mentions7d: e.mentions7d,
+    })),
+    changelog: pulse.changelog ?? [],
   };
 });

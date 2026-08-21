@@ -29,6 +29,39 @@ function Methods() {
       </header>
 
       <section className="mb-12 rounded-xl bg-surface p-5 shadow-[var(--shadow-border)]">
+        <p className="text-[11px] uppercase tracking-[0.16em] text-subtle">Methodology</p>
+        <h2 className="mt-2 font-display text-2xl italic">Put a name on the rank.</h2>
+        <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted">
+          Aether is an editorial map of ~100 names, re-verified with dates. It is not a live composite
+          index and does not compete with TAAFT on coverage or Artificial Analysis on measurement.
+        </p>
+        <ul className="mt-4 space-y-2 text-sm leading-relaxed text-muted">
+          <li>
+            <span className="text-fg">Map rank</span> — catalog prior (0–100), signed, per kind. Diffusion
+            is not ranked against Cursor.
+          </li>
+          <li>
+            <span className="text-fg">Heat</span> — raw 7-day mention counts. If fewer than three core
+            firehoses return rows, heat is not used as a ranking signal and the desk says index degraded.
+          </li>
+          <li>
+            <span className="text-fg">Matching</span> — word-boundary aliases only. Generic cs.AI
+            vocabulary (transformer, diffusion, attention…) is never matched in paper titles.
+          </li>
+          <li>
+            <span className="text-fg">Receipts</span> — dated changelog. Cited boards stay labeled.
+            <a className="ml-2 text-fg underline" href="/api/atlas.json">
+              JSON
+            </a>
+            {" · "}
+            <a className="text-fg underline" href="/feed.xml">
+              RSS
+            </a>
+          </li>
+        </ul>
+      </section>
+
+      <section className="mb-12 rounded-xl bg-surface p-5 shadow-[var(--shadow-border)]">
         <p className="text-[11px] uppercase tracking-[0.16em] text-subtle">Desk architecture</p>
         <h2 className="mt-2 font-display text-2xl italic">Pulse, cache, sleep.</h2>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted">

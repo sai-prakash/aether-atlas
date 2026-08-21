@@ -37,7 +37,7 @@ export const Route = createFileRoute("/e/$slug")({
 });
 
 function EntityPage() {
-  const { entity, signals, related, snapshots, uses, usedBy } = Route.useLoaderData();
+  const { entity, signals, related, snapshots, uses, usedBy, changelog } = Route.useLoaderData();
   const chart = snapshots.map((s) => ({
     t: atStamp(s.at, 10),
     score: s.score,
@@ -52,6 +52,7 @@ function EntityPage() {
           <p className="text-[11px] uppercase tracking-[0.16em] text-subtle">
             {KIND_LABEL[entity.kind]} · {LICENSE_LABEL[entity.license]}
             {entity.vendor ? ` · ${entity.vendor}` : ""}
+            {entity.status !== "active" ? ` · ${entity.status}` : ""}
           </p>
           <h1 className="mt-1 font-display text-4xl italic tracking-tight">{entity.name}</h1>
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted">{entity.description}</p>
@@ -85,24 +86,62 @@ function EntityPage() {
           </div>
         </div>
         <div className="rounded-xl bg-surface p-4 text-right shadow-[var(--shadow-border)]">
-          <p className="text-[11px] uppercase tracking-wide text-subtle">Aether Index</p>
-          <p className="mt-1 font-display text-4xl italic tabular">{entity.score.toFixed(1)}</p>
+          <p className="text-[11px] uppercase tracking-wide text-subtle">Map prior</p>
+          <p className="mt-1 font-display text-4xl italic tabular">{entity.catalogWeight.toFixed(0)}</p>
           <p className="mt-1 text-xs text-muted">
-            rank {entity.rank}
-            {entity.prevRank ? ` · was ${entity.prevRank}` : ""}
+            #{entity.kindRank || entity.rank} in {KIND_LABEL[entity.kind]}
           </p>
-          <Delta value={entity.momentum} className="mt-2 justify-end" />
+          <p className="mt-2 text-[11px] text-subtle">
+            {entity.verifiedAt ? `Verified ${entity.verifiedAt.slice(0, 10)}` : "Unverified"}
+          </p>
         </div>
       </header>
 
-      <section className="mt-8 grid gap-6 sm:grid-cols-3">
+      <section className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <Meta label="Pricing" value={entity.pricing || "—"} />
+        <Meta
+          label="Tokens"
+          value={
+            entity.spec.priceIn != null
+              ? `$${entity.spec.priceIn} / $${entity.spec.priceOut ?? "—"} per 1M`
+              : "—"
+          }
+        />
+        <Meta
+          label="Context"
+          value={entity.spec.contextK ? `${entity.spec.contextK}K` : "—"}
+        />
+        <Meta label="Self-host" value={entity.spec.selfHost ? "Yes" : entity.spec.selfHost === false ? "No" : "—"} />
+      </section>
+      <section className="mt-4 grid gap-6 sm:grid-cols-3">
         <Meta label="Mentions 24h" value={String(entity.mentions24h)} />
         <Meta label="Mentions 7d" value={String(entity.mentions7d)} />
+        <Meta label="Status" value={entity.status} />
       </section>
 
+      {changelog?.length ? (
+        <section className="mt-8">
+          <h2 className="mb-3 font-display text-2xl italic">Changelog</h2>
+          <ul className="divide-y divide-border rounded-xl bg-surface px-4 shadow-[var(--shadow-border)]">
+            {changelog.map((c) => (
+              <li key={`${c.at}-${c.title}`} className="py-3">
+                <p className="font-mono text-[11px] text-subtle">{c.at.slice(0, 10)}</p>
+                <p className="mt-1 text-sm">{c.title}</p>
+                <p className="mt-1 text-sm text-muted">{c.body}</p>
+                {c.sourceUrl ? (
+                  <a href={c.sourceUrl} className="mt-1 inline-block text-[11px] text-muted hover:text-fg" target="_blank" rel="noreferrer">
+                    Receipt
+                  </a>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
+      {chart.length ? (
       <section className="mt-8">
-        <h2 className="mb-3 font-display text-2xl italic">Index history</h2>
+        <h2 className="mb-3 font-display text-2xl italic">Mention history</h2>
         <div className="h-56 rounded-xl bg-surface p-3 shadow-[var(--shadow-border)]">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chart}>
@@ -120,6 +159,7 @@ function EntityPage() {
           </ResponsiveContainer>
         </div>
       </section>
+      ) : null}
 
       {uses.length || usedBy.length ? (
         <section className="mt-8">

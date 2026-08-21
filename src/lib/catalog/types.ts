@@ -35,6 +35,15 @@ export const CATEGORIES = [
 
 export type Category = (typeof CATEGORIES)[number];
 
+export type EntityStatus = "active" | "deprecated" | "historic";
+
+export type EntitySpec = {
+  contextK?: number;
+  priceIn?: number;
+  priceOut?: number;
+  selfHost?: boolean;
+};
+
 export type SeedEntity = {
   id: string;
   kind: Kind;
@@ -53,6 +62,9 @@ export type SeedEntity = {
   catalog_weight: number;
   aliases: string[];
   trend?: number;
+  status?: EntityStatus;
+  verified?: string;
+  spec?: EntitySpec;
 };
 
 export type Entity = {
@@ -82,6 +94,10 @@ export type Entity = {
   rank: number;
   prevRank: number | null;
   spark: number[];
+  status: EntityStatus;
+  verifiedAt: string | null;
+  spec: EntitySpec;
+  kindRank: number;
 };
 
 export type Signal = {
@@ -130,6 +146,15 @@ export type SnapPoint = {
 export type RankMark = {
   rank: number;
   score: number;
+};
+
+export type ChangelogEntry = {
+  entityId: string;
+  entityName: string;
+  at: string;
+  title: string;
+  body: string;
+  sourceUrl: string;
 };
 
 export type Mover = {
@@ -199,6 +224,9 @@ export type Dashboard = {
   signals: Signal[];
   insight: Insight | null;
   lens: Lens;
+  health: import("./health").IndexHealth;
+  changelog: ChangelogEntry[];
+  byKind: { kind: Kind; leaders: Entity[] }[];
 };
 
 export type PulsePayload = {
@@ -213,6 +241,7 @@ export type PulsePayload = {
   byCategory: Dashboard["byCategory"];
   licenseSplit: Dashboard["licenseSplit"];
   citedAa?: Record<string, CitedMark>;
+  changelog?: ChangelogEntry[];
 };
 
 

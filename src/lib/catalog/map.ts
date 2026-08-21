@@ -1,4 +1,4 @@
-import type { Entity, Insight, Kind, License, Signal } from "./types";
+import type { Entity, EntitySpec, EntityStatus, Insight, Kind, License, Signal } from "./types";
 
 export type EntityRow = {
   id: string;
@@ -24,6 +24,9 @@ export type EntityRow = {
   github_stars: number | string;
   hf_downloads: number | string;
   last_seen: string | null;
+  status?: string;
+  verified_at?: string | null;
+  spec?: string;
 };
 
 function num(v: number | string | null | undefined): number {
@@ -55,7 +58,25 @@ function parseList(raw: string | null | undefined): string[] {
   }
 }
 
-export function mapEntity(row: EntityRow, rank = 0, prevRank: number | null = null, spark: number[] = []): Entity {
+function parseSpec(raw: string | null | undefined): EntitySpec {
+  if (!raw) return {};
+  try {
+    const v = JSON.parse(raw) as EntitySpec;
+    return v && typeof v === "object" ? v : {};
+  } catch {
+    return {};
+  }
+}
+
+export function mapEntity(
+  row: EntityRow,
+  rank = 0,
+  prevRank: number | null = null,
+  spark: number[] = [],
+  kindRank = 0,
+): Entity {
+  const status: EntityStatus =
+    row.status === "deprecated" || row.status === "historic" ? row.status : "active";
   return {
     id: row.id,
     kind: row.kind as Kind,
@@ -73,8 +94,8 @@ export function mapEntity(row: EntityRow, rank = 0, prevRank: number | null = nu
     pricing: row.pricing,
     catalogWeight: num(row.catalog_weight),
     aliases: parseList(row.aliases),
-    score: num(row.score),
-    momentum: num(row.momentum),
+    score: num(row.catalog_weight),
+    momentum: num(row.mentions_24h),
     mentions24h: num(row.mentions_24h),
     mentions7d: num(row.mentions_7d),
     githubStars: num(row.github_stars),
@@ -83,6 +104,10 @@ export function mapEntity(row: EntityRow, rank = 0, prevRank: number | null = nu
     rank,
     prevRank,
     spark,
+    status,
+    verifiedAt: asIsoOrNull(row.verified_at),
+    spec: parseSpec(row.spec),
+    kindRank,
   };
 }
 

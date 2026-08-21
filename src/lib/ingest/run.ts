@@ -1,5 +1,4 @@
 import type { Sql } from "@/lib/db";
-import { aetherIndex } from "@/lib/catalog/scoring";
 import type { SourceStatus } from "@/lib/catalog/types";
 import { PULSE } from "./budget";
 import { fetchAllSources, type RawSignal } from "./sources";
@@ -184,19 +183,12 @@ async function recomputeScores(sql: Sql): Promise<void> {
   for (const e of entities) {
     const m = mentions.get(e.id) ?? { n24: 0, n7: 0 };
     const last = lastSeen.get(e.id) ?? null;
-    const score = aetherIndex({
-      catalogWeight: Number(e.catalog_weight) || 0,
-      mentions24h: m.n24,
-      mentions7d: m.n7,
-      githubStars: Number(e.github_stars) || 0,
-      hfDownloads: Number(e.hf_downloads) || 0,
-      lastSeen: last,
-    });
+    const score = Number(e.catalog_weight) || 0;
     const prev = prevScore.get(e.id) ?? score;
     scored.push({
       id: e.id,
       score,
-      momentum: Math.round((score - prev) * 10) / 10,
+      momentum: m.n24,
       m24: m.n24,
       m7: m.n7,
       last,

@@ -10,20 +10,29 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AboutRouteImport } from './routes/about'
 import { Route as AtlasRouteImport } from './routes/atlas'
 import { Route as CompareRouteImport } from './routes/compare'
 import { Route as DriftRouteImport } from './routes/drift'
+import { Route as FeedDotxmlRouteImport } from './routes/feed[.]xml'
 import { Route as LensRouteImport } from './routes/lens'
+import { Route as MethodRouteImport } from './routes/method'
 import { Route as MethodsRouteImport } from './routes/methods'
 import { Route as PapersRouteImport } from './routes/papers'
 import { Route as RankingsRouteImport } from './routes/rankings'
 import { Route as SignalsRouteImport } from './routes/signals'
+import { Route as ApiAtlasDotjsonRouteImport } from './routes/api/atlas[.]json'
 import { Route as ApiCronRouteImport } from './routes/api/cron'
 import { Route as ESlugRouteImport } from './routes/e.$slug'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AtlasRoute = AtlasRouteImport.update({
@@ -41,9 +50,19 @@ const DriftRoute = DriftRouteImport.update({
   path: '/drift',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FeedDotxmlRoute = FeedDotxmlRouteImport.update({
+  id: '/feed.xml',
+  path: '/feed.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LensRoute = LensRouteImport.update({
   id: '/lens',
   path: '/lens',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MethodRoute = MethodRouteImport.update({
+  id: '/method',
+  path: '/method',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MethodsRoute = MethodsRouteImport.update({
@@ -66,6 +85,11 @@ const SignalsRoute = SignalsRouteImport.update({
   path: '/signals',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAtlasDotjsonRoute = ApiAtlasDotjsonRouteImport.update({
+  id: '/api/atlas.json',
+  path: '/api/atlas.json',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiCronRoute = ApiCronRouteImport.update({
   id: '/api/cron',
   path: '/api/cron',
@@ -79,41 +103,53 @@ const ESlugRoute = ESlugRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/atlas': typeof AtlasRoute
   '/compare': typeof CompareRoute
   '/drift': typeof DriftRoute
+  '/feed.xml': typeof FeedDotxmlRoute
   '/lens': typeof LensRoute
+  '/method': typeof MethodRoute
   '/methods': typeof MethodsRoute
   '/papers': typeof PapersRoute
   '/rankings': typeof RankingsRoute
   '/signals': typeof SignalsRoute
+  '/api/atlas.json': typeof ApiAtlasDotjsonRoute
   '/api/cron': typeof ApiCronRoute
   '/e/$slug': typeof ESlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/atlas': typeof AtlasRoute
   '/compare': typeof CompareRoute
   '/drift': typeof DriftRoute
+  '/feed.xml': typeof FeedDotxmlRoute
   '/lens': typeof LensRoute
+  '/method': typeof MethodRoute
   '/methods': typeof MethodsRoute
   '/papers': typeof PapersRoute
   '/rankings': typeof RankingsRoute
   '/signals': typeof SignalsRoute
+  '/api/atlas.json': typeof ApiAtlasDotjsonRoute
   '/api/cron': typeof ApiCronRoute
   '/e/$slug': typeof ESlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
   '/atlas': typeof AtlasRoute
   '/compare': typeof CompareRoute
   '/drift': typeof DriftRoute
+  '/feed.xml': typeof FeedDotxmlRoute
   '/lens': typeof LensRoute
+  '/method': typeof MethodRoute
   '/methods': typeof MethodsRoute
   '/papers': typeof PapersRoute
   '/rankings': typeof RankingsRoute
   '/signals': typeof SignalsRoute
+  '/api/atlas.json': typeof ApiAtlasDotjsonRoute
   '/api/cron': typeof ApiCronRoute
   '/e/$slug': typeof ESlugRoute
 }
@@ -121,54 +157,70 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/about'
     | '/atlas'
     | '/compare'
     | '/drift'
+    | '/feed.xml'
     | '/lens'
+    | '/method'
     | '/methods'
     | '/papers'
     | '/rankings'
     | '/signals'
+    | '/api/atlas.json'
     | '/api/cron'
     | '/e/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/about'
     | '/atlas'
     | '/compare'
     | '/drift'
+    | '/feed.xml'
     | '/lens'
+    | '/method'
     | '/methods'
     | '/papers'
     | '/rankings'
     | '/signals'
+    | '/api/atlas.json'
     | '/api/cron'
     | '/e/$slug'
   id:
     | '__root__'
     | '/'
+    | '/about'
     | '/atlas'
     | '/compare'
     | '/drift'
+    | '/feed.xml'
     | '/lens'
+    | '/method'
     | '/methods'
     | '/papers'
     | '/rankings'
     | '/signals'
+    | '/api/atlas.json'
     | '/api/cron'
     | '/e/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
   AtlasRoute: typeof AtlasRoute
   CompareRoute: typeof CompareRoute
   DriftRoute: typeof DriftRoute
+  FeedDotxmlRoute: typeof FeedDotxmlRoute
   LensRoute: typeof LensRoute
+  MethodRoute: typeof MethodRoute
   MethodsRoute: typeof MethodsRoute
   PapersRoute: typeof PapersRoute
   RankingsRoute: typeof RankingsRoute
   SignalsRoute: typeof SignalsRoute
+  ApiAtlasDotjsonRoute: typeof ApiAtlasDotjsonRoute
   ApiCronRoute: typeof ApiCronRoute
   ESlugRoute: typeof ESlugRoute
 }
@@ -180,6 +232,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/atlas': {
@@ -203,11 +262,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DriftRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/feed.xml': {
+      id: '/feed.xml'
+      path: '/feed.xml'
+      fullPath: '/feed.xml'
+      preLoaderRoute: typeof FeedDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lens': {
       id: '/lens'
       path: '/lens'
       fullPath: '/lens'
       preLoaderRoute: typeof LensRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/method': {
+      id: '/method'
+      path: '/method'
+      fullPath: '/method'
+      preLoaderRoute: typeof MethodRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/methods': {
@@ -238,6 +311,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SignalsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/atlas.json': {
+      id: '/api/atlas.json'
+      path: '/api/atlas.json'
+      fullPath: '/api/atlas.json'
+      preLoaderRoute: typeof ApiAtlasDotjsonRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/cron': {
       id: '/api/cron'
       path: '/api/cron'
@@ -257,14 +337,18 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
   AtlasRoute: AtlasRoute,
   CompareRoute: CompareRoute,
   DriftRoute: DriftRoute,
+  FeedDotxmlRoute: FeedDotxmlRoute,
   LensRoute: LensRoute,
+  MethodRoute: MethodRoute,
   MethodsRoute: MethodsRoute,
   PapersRoute: PapersRoute,
   RankingsRoute: RankingsRoute,
   SignalsRoute: SignalsRoute,
+  ApiAtlasDotjsonRoute: ApiAtlasDotjsonRoute,
   ApiCronRoute: ApiCronRoute,
   ESlugRoute: ESlugRoute,
 }
