@@ -16,6 +16,7 @@ import { SignalList } from "@/components/aether/signals";
 import { EntityCard } from "@/components/aether/entity-row";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { atStamp } from "@/lib/utils";
 
 export const Route = createFileRoute("/e/$slug")({
   loader: async ({ params }) => {
@@ -38,7 +39,7 @@ export const Route = createFileRoute("/e/$slug")({
 function EntityPage() {
   const { entity, signals, related, snapshots } = Route.useLoaderData();
   const chart = snapshots.map((s) => ({
-    t: s.at.slice(0, 10),
+    t: atStamp(s.at, 10),
     score: s.score,
     rank: s.rank,
   }));

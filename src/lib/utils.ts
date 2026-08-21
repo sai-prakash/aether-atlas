@@ -19,9 +19,9 @@ export function formatCompact(value: number): string {
   return Math.round(value).toString();
 }
 
-export function formatRelative(iso: string | null | undefined): string {
+export function formatRelative(iso: string | Date | null | undefined): string {
   if (!iso) return "never";
-  const then = new Date(iso).getTime();
+  const then = iso instanceof Date ? iso.getTime() : new Date(iso).getTime();
   if (Number.isNaN(then)) return "never";
   const delta = Date.now() - then;
   const min = Math.round(delta / 60000);
@@ -37,4 +37,11 @@ export function windowLabel(window: "24h" | "7d" | "30d"): string {
   if (window === "24h") return "24 hours";
   if (window === "7d") return "7 days";
   return "30 days";
+}
+
+/** Snapshot timestamps may be ISO strings or Date after a Neon round-trip. */
+export function atStamp(at: string | Date | null | undefined, length = 10): string {
+  if (at == null) return "";
+  const s = at instanceof Date ? at.toISOString() : String(at);
+  return s.slice(0, length);
 }

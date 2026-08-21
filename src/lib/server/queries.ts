@@ -110,7 +110,10 @@ export const getEntity = createServerFn({ method: "GET" })
       entity,
       signals: pulse.signals.filter((s) => s.entityId === entity.id).slice(0, 20),
       related: [...relatedMap.values()].slice(0, 10),
-      snapshots: pulse.snapshots[entity.id] ?? [],
+      snapshots: (pulse.snapshots[entity.id] ?? []).map((p) => ({
+        ...p,
+        at: typeof p.at === "string" ? p.at : new Date(p.at).toISOString(),
+      })),
     };
   });
 
@@ -187,7 +190,7 @@ export const getDrift = createServerFn({ method: "GET" })
           const ts = new Date(p.at).getTime();
           return !Number.isNaN(ts) && ts >= since;
         })
-        .map((p) => ({ at: p.at, score: p.score, rank: p.rank })),
+        .map((p) => ({ at: typeof p.at === "string" ? p.at : new Date(p.at).toISOString(), score: p.score, rank: p.rank })),
     }));
     const prev = pulse.prev[data.window] ?? {};
     const now = withPrev(pulse.entities, prev);

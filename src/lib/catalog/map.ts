@@ -31,6 +31,20 @@ function num(v: number | string | null | undefined): number {
   return Number.isFinite(n) ? n : 0;
 }
 
+/** Neon/pg may hand back Date; the desk always wants ISO/text. */
+export function asIso(v: unknown): string {
+  if (v == null) return "";
+  if (v instanceof Date) return Number.isNaN(v.getTime()) ? "" : v.toISOString();
+  if (typeof v === "string") return v;
+  return String(v);
+}
+
+export function asIsoOrNull(v: unknown): string | null {
+  if (v == null || v === "") return null;
+  const s = asIso(v);
+  return s || null;
+}
+
 function parseList(raw: string | null | undefined): string[] {
   if (!raw) return [];
   try {
@@ -65,7 +79,7 @@ export function mapEntity(row: EntityRow, rank = 0, prevRank: number | null = nu
     mentions7d: num(row.mentions_7d),
     githubStars: num(row.github_stars),
     hfDownloads: num(row.hf_downloads),
-    lastSeen: row.last_seen,
+    lastSeen: asIsoOrNull(row.last_seen),
     rank,
     prevRank,
     spark,
@@ -93,8 +107,8 @@ export function mapSignal(row: SignalRow): Signal {
     snippet: row.snippet ?? "",
     entityId: row.entity_id ?? "",
     score: num(row.score),
-    publishedAt: row.published_at,
-    ingestedAt: row.ingested_at,
+    publishedAt: asIsoOrNull(row.published_at),
+    ingestedAt: asIso(row.ingested_at) || new Date().toISOString(),
   };
 }
 
@@ -112,6 +126,6 @@ export function mapInsight(row: InsightRow): Insight {
     period: row.period,
     title: row.title,
     body: row.body,
-    generatedAt: row.generated_at,
+    generatedAt: asIso(row.generated_at),
   };
 }

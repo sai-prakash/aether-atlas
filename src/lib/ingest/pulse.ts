@@ -1,5 +1,5 @@
 import type { Sql } from "@/lib/db";
-import { mapEntity, mapInsight, mapSignal, type EntityRow, type InsightRow, type SignalRow } from "@/lib/catalog/map";
+import { mapEntity, mapInsight, mapSignal, asIso, asIsoOrNull, type EntityRow, type InsightRow, type SignalRow } from "@/lib/catalog/map";
 import type {
   Entity,
   IngestStatus,
@@ -41,12 +41,13 @@ export function invalidatePulseMem(): void {
 
 export async function writePulse(sql: Sql, payload: PulsePayload): Promise<void> {
   const raw = JSON.stringify(payload);
+  const safe = JSON.parse(raw) as PulsePayload;
   await sql.query(
     `insert into pulse_state (id, payload, built_at) values ($1, $2, $3)
      on conflict (id) do update set payload = excluded.payload, built_at = excluded.built_at`,
-    [DESK_ID, raw, payload.builtAt],
+    [DESK_ID, raw, safe.builtAt],
   );
-  g.__aetherPulse__ = { at: Date.now(), payload };
+  g.__aetherPulse__ = { at: Date.now(), payload: safe };
 }
 
 export async function patchPulse(sql: Sql, patch: Partial<PulsePayload>): Promise<PulsePayload> {
@@ -155,8 +156,8 @@ async function ingestStatus(sql: Sql): Promise<IngestStatus> {
   const parsedStats = parseJson<Record<string, number>>(r.stats, {});
   return {
     id: Number(r.id),
-    startedAt: r.started_at,
-    finishedAt: r.finished_at,
+    startedAt: asIsoOrNull(r.started_at),
+    finishedAt: asIsoOrNull(r.finished_at),
     status: r.status,
     sources: Array.isArray(parsedSources) ? parsedSources : [],
     stats: parsedStats && typeof parsedStats === "object" && !Array.isArray(parsedStats) ? parsedStats : {},
@@ -191,7 +192,7 @@ export async function materializePulse(sql: Sql): Promise<PulsePayload> {
   for (const s of snapRows) {
     const list = snapshots[s.entity_id] ?? [];
     list.push({
-      at: s.captured_at,
+      at: asIso(s.captured_at),
       score: Number(s.score),
       rank: Number(s.rank),
       mentions: Number(s.mentions),

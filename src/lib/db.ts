@@ -62,11 +62,14 @@ const globalRef = globalThis as typeof globalThis & {
  *   int8/bigint (incl. count(*)) -> number (past 2^53 loses precision — cast
  *                                   `::text` if you ever need huge integers)
  *   date                         -> 'YYYY-MM-DD' string
+ *   timestamptz / timestamp      -> Postgres text (ISO-ish), never Date
  *   interval                     -> Postgres interval text
  * numeric already comes back as a string on both (arbitrary precision).
  */
 const OID_INT8 = 20;
 const OID_DATE = 1082;
+const OID_TIMESTAMP = 1114;
+const OID_TIMESTAMPTZ = 1184;
 const OID_INTERVAL = 1186;
 const identity = (v: string) => v;
 
@@ -133,6 +136,8 @@ function createNeonSql(): Promise<Sql> {
     const { Pool, types } = await import("pg");
     types.setTypeParser(OID_INT8, Number);
     types.setTypeParser(OID_DATE, identity);
+    types.setTypeParser(OID_TIMESTAMP, identity);
+    types.setTypeParser(OID_TIMESTAMPTZ, identity);
     types.setTypeParser(OID_INTERVAL, identity);
     const pool = new Pool({
       connectionString: databaseUrl,
@@ -162,6 +167,8 @@ async function createPgliteSql(): Promise<Sql> {
       parsers: {
         [OID_INT8]: Number,
         [OID_DATE]: identity,
+        [OID_TIMESTAMP]: identity,
+        [OID_TIMESTAMPTZ]: identity,
         [OID_INTERVAL]: identity,
       },
     });

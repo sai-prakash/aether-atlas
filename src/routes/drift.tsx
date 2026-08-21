@@ -11,7 +11,7 @@ import { getDrift } from "@/lib/server/queries";
 import type { TimeWindow } from "@/lib/catalog/types";
 import { WindowToggle } from "@/components/aether/window-toggle";
 import { Delta } from "@/components/aether/delta";
-import { windowLabel } from "@/lib/utils";
+import { windowLabel, atStamp } from "@/lib/utils";
 
 const PALETTE = [
   "var(--color-accent)",
@@ -40,12 +40,14 @@ function Drift() {
   const window = windowRaw ?? "7d";
 
   const times = new Set<string>();
-  for (const s of data.series) for (const p of s.points) times.add(p.at.slice(0, 16));
+  for (const s of data.series) for (const p of s.points) times.add(atStamp(p.at, 16));
   const ticks = [...times].sort();
   const chart = ticks.map((t) => {
     const row: Record<string, string | number> = { t };
     for (const s of data.series) {
-      const pt = s.points.find((p) => p.at.slice(0, 16) === t) ?? s.points.find((p) => p.at.slice(0, 10) === t.slice(0, 10));
+      const pt =
+        s.points.find((p) => atStamp(p.at, 16) === t) ??
+        s.points.find((p) => atStamp(p.at, 10) === t.slice(0, 10));
       if (pt) row[s.name] = pt.score;
     }
     return row;
