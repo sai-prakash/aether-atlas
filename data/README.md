@@ -5,7 +5,6 @@ Append-only UTC days. Mentions, not quality. Ira is a compiler of evidence — n
 - `GET /api/day.json` — index
 - `GET /api/day.json?d=YYYY-MM-DD` — one day (404 = hole, not zeros)
 - `GET /api/attention.csv` — movers/fades
-
-If `ARCHIVE_GITHUB_TOKEN` + `ARCHIVE_REPO` are set, each pulse also commits `data/days/YYYY-MM-DD.json`.
+- GitHub Action `.github/workflows/archive-day.yml` commits `data/days/YYYY-MM-DD.json` daily (no PAT)
 
 Never interpolate a missing date.

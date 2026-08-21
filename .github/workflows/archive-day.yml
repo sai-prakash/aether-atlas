@@ -1,0 +1,41 @@
+# Commits today's attention snapshot. No PAT. GITHUB_TOKEN is enough.
+# Vercel cron at 06:15 UTC closes the day; this runs 30 minutes later.
+name: archive-day
+on:
+  schedule:
+    - cron: "45 6 * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  archive:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Pull UTC day snapshot
+        env:
+          DESK: https://aether-atlas-eight.vercel.app
+        run: |
+          set -euo pipefail
+          mkdir -p data/days
+          DAY="$(date -u +%F)"
+          CODE="$(curl -sS -o /tmp/day.json -w '%{http_code}' "$DESK/api/day.json?d=${DAY}")"
+          if [ "$CODE" != "200" ]; then
+            echo "no snapshot for ${DAY} (http ${CODE}) — leaving a hole, not zeros"
+            exit 0
+          fi
+          python3 - <<'PY'
+          import json
+          raw = open("/tmp/day.json").read()
+          json.loads(raw)
+          open("data/days/" + __import__("datetime").datetime.utcnow().strftime("%Y-%m-%d") + ".json", "w").write(raw if raw.endswith("\n") else raw + "\n")
+          PY
+          git config user.name "Ira Prior"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "data/days/${DAY}.json"
+          if git diff --cached --quiet; then
+            echo "unchanged"
+            exit 0
+          fi
+          git commit -m "data: ${DAY}"
+          git push
