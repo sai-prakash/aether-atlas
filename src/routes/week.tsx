@@ -70,9 +70,17 @@ function Week() {
         </ol>
       </section>
       <p className="mt-10 text-xs text-subtle">
+        <a href="/week.md" className="hover:text-fg">
+          Markdown
+        </a>
+        {" · "}
         <a href="/feed.xml" className="hover:text-fg">
           RSS
         </a>
+        {" · "}
+        <Link to="/distribute" className="hover:text-fg">
+          Distribute
+        </Link>
         {" · "}
         <Link to="/refusals" className="hover:text-fg">
           Kill-list

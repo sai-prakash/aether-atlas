@@ -21,7 +21,9 @@ export const Route = createRootRoute({
       { property: "og:description", content: SITE.description },
       { property: "og:type", content: "website" },
       { property: "og:url", content: SITE.url },
-      { name: "twitter:card", content: "summary" },
+      { property: "og:image", content: `${SITE.url}/og.svg` },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: `${SITE.url}/og.svg` },
     ],
     links: [
       { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },

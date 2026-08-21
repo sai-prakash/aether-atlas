@@ -33,10 +33,42 @@ I cite Artificial Analysis by its full name and a date. I cite Arena the same wa
 
 If a name is not on the map, it is not an insult. It is a refusal. Chrome-extension directories, unpaid dump lists, Discord-only launches, and anything that needs a composite blender to look like news stay off. Rankings are per kind. Diffusion is a technique. Cursor is a tool. They do not share a ladder.
 
-Next Friday I will drop something. A canon that never drops is a directory. Until then, the receipts below are the week.
+This Friday I dropped four names so the set is a hundred: Bolt.new, Lovable, Replit Agent, Aider. v0 stays as the UI generator. Cursor, Claude Code, and Cline stay as the coding agents. A canon that never drops is a directory.
+
+The receipts below are the week. Next Friday the pipeline will draft from whatever shipped. I will sign it, or I will not.
 
 — ${SITE.editor}, ${SITE.editorTitle}, ${SITE.verifiedAsOf}`,
 };
+
+export type Drop = {
+  id: string;
+  name: string;
+  why: string;
+};
+
+/** Editorial drops, 21 Aug 2026. Kept so search still resolves. */
+export const DROPS: Drop[] = [
+  {
+    id: "bolt",
+    name: "Bolt.new",
+    why: "Vibe-app crowding. v0 stays as the UI generator.",
+  },
+  {
+    id: "lovable",
+    name: "Lovable",
+    why: "Same seat as Bolt. Not a second full-stack chat builder.",
+  },
+  {
+    id: "replit-agent",
+    name: "Replit Agent",
+    why: "Education/hobby cloud IDE. Cursor and Claude Code cover the professional seat.",
+  },
+  {
+    id: "aider",
+    name: "Aider",
+    why: "Open CLI pair-programmer. Cline is the bring-your-key agent that remains.",
+  },
+];
 
 export type Refusal = {
   name: string;
@@ -83,5 +115,9 @@ export const REFUSALS: Refusal[] = [
   {
     name: "Paying for placement",
     why: "If a name is on the map, I put it there. If it is not, money would not have helped.",
+  },
+  {
+    name: "Bolt.new, Lovable, Replit Agent, Aider",
+    why: "Dropped 21 Aug 2026 so the set is a hundred. v0 / Cursor / Claude Code / Cline remain.",
   },
 ];

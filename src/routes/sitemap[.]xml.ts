@@ -6,7 +6,7 @@ export const Route = createFileRoute("/sitemap.xml")({
   server: {
     handlers: {
       GET: async () => {
-        const pages = ["/", "/week", "/ira", "/refusals", "/atlas", "/rankings", "/lens", "/methods", "/signals", "/papers"];
+        const pages = ["/", "/week", "/ira", "/refusals", "/distribute", "/atlas", "/rankings", "/lens", "/methods", "/signals", "/papers"];
         const urls = [
           ...pages.map((p) => loc(p, "weekly")),
           ...SEED.map((e) => loc(`/e/${e.id}`, "weekly")),

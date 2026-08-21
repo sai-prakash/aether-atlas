@@ -1,6 +1,7 @@
 import type { Sql } from "@/lib/db";
 import { SEED } from "./seed-data";
 import { CHANGELOG_SEED } from "./changelog-seed";
+import { DROPS } from "./ira";
 import { invalidatePulseMem, materializePulse } from "@/lib/ingest/pulse";
 
 const g = globalThis as typeof globalThis & { __aetherCatalogReady__?: boolean };
@@ -93,6 +94,12 @@ export async function ensureCatalog(sql: Sql): Promise<void> {
          source_url = excluded.source_url`,
       values,
     );
+  }
+
+  const dropIds = DROPS.map((d) => d.id);
+  if (dropIds.length) {
+    await sql.query(`delete from changelog where entity_id = any($1::text[])`, [dropIds]);
+    await sql.query(`delete from entities where id = any($1::text[])`, [dropIds]);
   }
 
   g.__aetherCatalogReady__ = true;

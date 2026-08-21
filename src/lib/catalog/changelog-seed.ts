@@ -85,4 +85,11 @@ export const CHANGELOG_SEED: ChangelogSeed[] = [
     body: "Google’s current open-weight family. Gemma 3 is historic on this map.",
     sourceUrl: "https://ai.google.dev/gemma",
   },
+  {
+    entityId: "cursor",
+    at: "2026-08-21",
+    title: "Dropped Bolt, Lovable, Replit Agent, Aider",
+    body: "The map is 100. Vibe-app crowding: v0 stays. Coding agents: Cursor, Claude Code, Cline stay. Aider was the open CLI cousin — Cline covers the bring-your-key seat.",
+    sourceUrl: "https://aether-atlas-eight.vercel.app/refusals",
+  },
 ];

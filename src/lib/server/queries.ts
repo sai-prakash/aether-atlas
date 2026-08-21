@@ -7,6 +7,7 @@ import { buildLens, lineageFor } from "@/lib/catalog/lens";
 import { indexHealth } from "@/lib/catalog/health";
 import { KINDS } from "@/lib/catalog/types";
 import { PULSE } from "@/lib/ingest/budget";
+import { composePackage, type PublishPackage } from "@/lib/publish/compose";
 import { getPulse, patchPulse } from "@/lib/ingest/pulse";
 import { claimPulse, runIngest } from "@/lib/ingest/run";
 
@@ -385,4 +386,9 @@ export const getAtlasExport = createServerFn({ method: "GET" }).handler(async ()
     })),
     changelog: pulse.changelog ?? [],
   };
+});
+
+export const getPublishPackage = createServerFn({ method: "GET" }).handler(async (): Promise<PublishPackage> => {
+  const pulse = await desk();
+  return composePackage(pulse.changelog ?? []);
 });

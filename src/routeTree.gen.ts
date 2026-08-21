@@ -13,12 +13,14 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AtlasRouteImport } from './routes/atlas'
 import { Route as CompareRouteImport } from './routes/compare'
+import { Route as DistributeRouteImport } from './routes/distribute'
 import { Route as DriftRouteImport } from './routes/drift'
 import { Route as FeedDotxmlRouteImport } from './routes/feed[.]xml'
 import { Route as IraRouteImport } from './routes/ira'
 import { Route as LensRouteImport } from './routes/lens'
 import { Route as MethodRouteImport } from './routes/method'
 import { Route as MethodsRouteImport } from './routes/methods'
+import { Route as OgDotsvgRouteImport } from './routes/og[.]svg'
 import { Route as PapersRouteImport } from './routes/papers'
 import { Route as RankingsRouteImport } from './routes/rankings'
 import { Route as RefusalsRouteImport } from './routes/refusals'
@@ -26,8 +28,11 @@ import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as SignalsRouteImport } from './routes/signals'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as WeekRouteImport } from './routes/week'
+import { Route as WeekDotmdRouteImport } from './routes/week[.]md'
 import { Route as ApiAtlasDotjsonRouteImport } from './routes/api/atlas[.]json'
 import { Route as ApiCronRouteImport } from './routes/api/cron'
+import { Route as ApiPublishRouteImport } from './routes/api/publish'
+import { Route as ApiThreadDotjsonRouteImport } from './routes/api/thread[.]json'
 import { Route as ESlugRouteImport } from './routes/e.$slug'
 
 const IndexRoute = IndexRouteImport.update({
@@ -48,6 +53,11 @@ const AtlasRoute = AtlasRouteImport.update({
 const CompareRoute = CompareRouteImport.update({
   id: '/compare',
   path: '/compare',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DistributeRoute = DistributeRouteImport.update({
+  id: '/distribute',
+  path: '/distribute',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DriftRoute = DriftRouteImport.update({
@@ -78,6 +88,11 @@ const MethodRoute = MethodRouteImport.update({
 const MethodsRoute = MethodsRouteImport.update({
   id: '/methods',
   path: '/methods',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OgDotsvgRoute = OgDotsvgRouteImport.update({
+  id: '/og.svg',
+  path: '/og.svg',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PapersRoute = PapersRouteImport.update({
@@ -115,6 +130,11 @@ const WeekRoute = WeekRouteImport.update({
   path: '/week',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WeekDotmdRoute = WeekDotmdRouteImport.update({
+  id: '/week.md',
+  path: '/week.md',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAtlasDotjsonRoute = ApiAtlasDotjsonRouteImport.update({
   id: '/api/atlas.json',
   path: '/api/atlas.json',
@@ -123,6 +143,16 @@ const ApiAtlasDotjsonRoute = ApiAtlasDotjsonRouteImport.update({
 const ApiCronRoute = ApiCronRouteImport.update({
   id: '/api/cron',
   path: '/api/cron',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublishRoute = ApiPublishRouteImport.update({
+  id: '/api/publish',
+  path: '/api/publish',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiThreadDotjsonRoute = ApiThreadDotjsonRouteImport.update({
+  id: '/api/thread.json',
+  path: '/api/thread.json',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ESlugRoute = ESlugRouteImport.update({
@@ -136,12 +166,14 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/atlas': typeof AtlasRoute
   '/compare': typeof CompareRoute
+  '/distribute': typeof DistributeRoute
   '/drift': typeof DriftRoute
   '/feed.xml': typeof FeedDotxmlRoute
   '/ira': typeof IraRoute
   '/lens': typeof LensRoute
   '/method': typeof MethodRoute
   '/methods': typeof MethodsRoute
+  '/og.svg': typeof OgDotsvgRoute
   '/papers': typeof PapersRoute
   '/rankings': typeof RankingsRoute
   '/refusals': typeof RefusalsRoute
@@ -149,8 +181,11 @@ export interface FileRoutesByFullPath {
   '/signals': typeof SignalsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/week': typeof WeekRoute
+  '/week.md': typeof WeekDotmdRoute
   '/api/atlas.json': typeof ApiAtlasDotjsonRoute
   '/api/cron': typeof ApiCronRoute
+  '/api/publish': typeof ApiPublishRoute
+  '/api/thread.json': typeof ApiThreadDotjsonRoute
   '/e/$slug': typeof ESlugRoute
 }
 export interface FileRoutesByTo {
@@ -158,12 +193,14 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/atlas': typeof AtlasRoute
   '/compare': typeof CompareRoute
+  '/distribute': typeof DistributeRoute
   '/drift': typeof DriftRoute
   '/feed.xml': typeof FeedDotxmlRoute
   '/ira': typeof IraRoute
   '/lens': typeof LensRoute
   '/method': typeof MethodRoute
   '/methods': typeof MethodsRoute
+  '/og.svg': typeof OgDotsvgRoute
   '/papers': typeof PapersRoute
   '/rankings': typeof RankingsRoute
   '/refusals': typeof RefusalsRoute
@@ -171,8 +208,11 @@ export interface FileRoutesByTo {
   '/signals': typeof SignalsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/week': typeof WeekRoute
+  '/week.md': typeof WeekDotmdRoute
   '/api/atlas.json': typeof ApiAtlasDotjsonRoute
   '/api/cron': typeof ApiCronRoute
+  '/api/publish': typeof ApiPublishRoute
+  '/api/thread.json': typeof ApiThreadDotjsonRoute
   '/e/$slug': typeof ESlugRoute
 }
 export interface FileRoutesById {
@@ -181,12 +221,14 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/atlas': typeof AtlasRoute
   '/compare': typeof CompareRoute
+  '/distribute': typeof DistributeRoute
   '/drift': typeof DriftRoute
   '/feed.xml': typeof FeedDotxmlRoute
   '/ira': typeof IraRoute
   '/lens': typeof LensRoute
   '/method': typeof MethodRoute
   '/methods': typeof MethodsRoute
+  '/og.svg': typeof OgDotsvgRoute
   '/papers': typeof PapersRoute
   '/rankings': typeof RankingsRoute
   '/refusals': typeof RefusalsRoute
@@ -194,8 +236,11 @@ export interface FileRoutesById {
   '/signals': typeof SignalsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/week': typeof WeekRoute
+  '/week.md': typeof WeekDotmdRoute
   '/api/atlas.json': typeof ApiAtlasDotjsonRoute
   '/api/cron': typeof ApiCronRoute
+  '/api/publish': typeof ApiPublishRoute
+  '/api/thread.json': typeof ApiThreadDotjsonRoute
   '/e/$slug': typeof ESlugRoute
 }
 export interface FileRouteTypes {
@@ -205,12 +250,14 @@ export interface FileRouteTypes {
     | '/about'
     | '/atlas'
     | '/compare'
+    | '/distribute'
     | '/drift'
     | '/feed.xml'
     | '/ira'
     | '/lens'
     | '/method'
     | '/methods'
+    | '/og.svg'
     | '/papers'
     | '/rankings'
     | '/refusals'
@@ -218,8 +265,11 @@ export interface FileRouteTypes {
     | '/signals'
     | '/sitemap.xml'
     | '/week'
+    | '/week.md'
     | '/api/atlas.json'
     | '/api/cron'
+    | '/api/publish'
+    | '/api/thread.json'
     | '/e/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -227,12 +277,14 @@ export interface FileRouteTypes {
     | '/about'
     | '/atlas'
     | '/compare'
+    | '/distribute'
     | '/drift'
     | '/feed.xml'
     | '/ira'
     | '/lens'
     | '/method'
     | '/methods'
+    | '/og.svg'
     | '/papers'
     | '/rankings'
     | '/refusals'
@@ -240,8 +292,11 @@ export interface FileRouteTypes {
     | '/signals'
     | '/sitemap.xml'
     | '/week'
+    | '/week.md'
     | '/api/atlas.json'
     | '/api/cron'
+    | '/api/publish'
+    | '/api/thread.json'
     | '/e/$slug'
   id:
     | '__root__'
@@ -249,12 +304,14 @@ export interface FileRouteTypes {
     | '/about'
     | '/atlas'
     | '/compare'
+    | '/distribute'
     | '/drift'
     | '/feed.xml'
     | '/ira'
     | '/lens'
     | '/method'
     | '/methods'
+    | '/og.svg'
     | '/papers'
     | '/rankings'
     | '/refusals'
@@ -262,8 +319,11 @@ export interface FileRouteTypes {
     | '/signals'
     | '/sitemap.xml'
     | '/week'
+    | '/week.md'
     | '/api/atlas.json'
     | '/api/cron'
+    | '/api/publish'
+    | '/api/thread.json'
     | '/e/$slug'
   fileRoutesById: FileRoutesById
 }
@@ -272,12 +332,14 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   AtlasRoute: typeof AtlasRoute
   CompareRoute: typeof CompareRoute
+  DistributeRoute: typeof DistributeRoute
   DriftRoute: typeof DriftRoute
   FeedDotxmlRoute: typeof FeedDotxmlRoute
   IraRoute: typeof IraRoute
   LensRoute: typeof LensRoute
   MethodRoute: typeof MethodRoute
   MethodsRoute: typeof MethodsRoute
+  OgDotsvgRoute: typeof OgDotsvgRoute
   PapersRoute: typeof PapersRoute
   RankingsRoute: typeof RankingsRoute
   RefusalsRoute: typeof RefusalsRoute
@@ -285,8 +347,11 @@ export interface RootRouteChildren {
   SignalsRoute: typeof SignalsRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   WeekRoute: typeof WeekRoute
+  WeekDotmdRoute: typeof WeekDotmdRoute
   ApiAtlasDotjsonRoute: typeof ApiAtlasDotjsonRoute
   ApiCronRoute: typeof ApiCronRoute
+  ApiPublishRoute: typeof ApiPublishRoute
+  ApiThreadDotjsonRoute: typeof ApiThreadDotjsonRoute
   ESlugRoute: typeof ESlugRoute
 }
 
@@ -318,6 +383,13 @@ declare module '@tanstack/react-router' {
       path: '/compare'
       fullPath: '/compare'
       preLoaderRoute: typeof CompareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/distribute': {
+      id: '/distribute'
+      path: '/distribute'
+      fullPath: '/distribute'
+      preLoaderRoute: typeof DistributeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/drift': {
@@ -360,6 +432,13 @@ declare module '@tanstack/react-router' {
       path: '/methods'
       fullPath: '/methods'
       preLoaderRoute: typeof MethodsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/og.svg': {
+      id: '/og.svg'
+      path: '/og.svg'
+      fullPath: '/og.svg'
+      preLoaderRoute: typeof OgDotsvgRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/papers': {
@@ -411,6 +490,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WeekRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/week.md': {
+      id: '/week.md'
+      path: '/week.md'
+      fullPath: '/week.md'
+      preLoaderRoute: typeof WeekDotmdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/atlas.json': {
       id: '/api/atlas.json'
       path: '/api/atlas.json'
@@ -423,6 +509,20 @@ declare module '@tanstack/react-router' {
       path: '/api/cron'
       fullPath: '/api/cron'
       preLoaderRoute: typeof ApiCronRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/publish': {
+      id: '/api/publish'
+      path: '/api/publish'
+      fullPath: '/api/publish'
+      preLoaderRoute: typeof ApiPublishRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/thread.json': {
+      id: '/api/thread.json'
+      path: '/api/thread.json'
+      fullPath: '/api/thread.json'
+      preLoaderRoute: typeof ApiThreadDotjsonRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/e/$slug': {
@@ -440,12 +540,14 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   AtlasRoute: AtlasRoute,
   CompareRoute: CompareRoute,
+  DistributeRoute: DistributeRoute,
   DriftRoute: DriftRoute,
   FeedDotxmlRoute: FeedDotxmlRoute,
   IraRoute: IraRoute,
   LensRoute: LensRoute,
   MethodRoute: MethodRoute,
   MethodsRoute: MethodsRoute,
+  OgDotsvgRoute: OgDotsvgRoute,
   PapersRoute: PapersRoute,
   RankingsRoute: RankingsRoute,
   RefusalsRoute: RefusalsRoute,
@@ -453,8 +555,11 @@ const rootRouteChildren: RootRouteChildren = {
   SignalsRoute: SignalsRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   WeekRoute: WeekRoute,
+  WeekDotmdRoute: WeekDotmdRoute,
   ApiAtlasDotjsonRoute: ApiAtlasDotjsonRoute,
   ApiCronRoute: ApiCronRoute,
+  ApiPublishRoute: ApiPublishRoute,
+  ApiThreadDotjsonRoute: ApiThreadDotjsonRoute,
   ESlugRoute: ESlugRoute,
 }
 export const routeTree = rootRouteImport
