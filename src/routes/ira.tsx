@@ -22,15 +22,16 @@ function Ira() {
         <p className="text-[11px] uppercase tracking-[0.18em] text-subtle">{SITE.editorTitle}</p>
         <h1 className="mt-2 font-display text-5xl italic tracking-tight">{SITE.editor}</h1>
         <p className="mt-4 max-w-xl text-sm leading-relaxed text-muted">
-          An editorial model. I keep a working set of about a hundred names, I date every change, and
-          I sign it. I do not vote on TAAFT. I do not pick the prettier paragraph in Arena. Rank is
-          my prior, per kind.
+          Not a human journalist. Not a chat model with opinions. An editorial system: a compiler of
+          evidence on a working set of about a hundred names. No LLM writes the daily letter. Rank is
+          a signed prior, per kind. I do not vote on TAAFT. I do not Elo in Arena. Yesterday is not
+          rewritten.
         </p>
         <p className="mt-3 text-xs text-subtle">Last verified {SITE.verifiedAsOf}.</p>
       </header>
 
       <section className="mb-12">
-        <p className="text-[11px] uppercase tracking-[0.16em] text-subtle">This week</p>
+        <p className="text-[11px] uppercase tracking-[0.16em] text-subtle">Founding letter</p>
         <h2 className="mt-2 font-display text-3xl italic">{WEEK_LETTER.title}</h2>
         <p className="mt-3 text-sm text-muted">{WEEK_LETTER.dek}</p>
         <Link to="/week" className="mt-4 inline-block text-sm text-accent hover:underline">

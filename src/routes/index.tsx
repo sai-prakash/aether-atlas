@@ -26,7 +26,7 @@ function Observatory() {
   const day = data.iraDay;
   const headline = day?.letter.title ?? WEEK_LETTER.title;
   const dek = day?.letter.dek ?? WEEK_LETTER.body.split("\n\n")[0];
-  const movers = degraded ? [] : data.movers.filter((m) => m.delta > 0).slice(0, 8);
+  const movers = degraded ? [] : data.movers.filter((m) => m.delta >= 3).slice(0, 8);
 
   return (
     <div className="mx-auto max-w-xl">
@@ -35,7 +35,11 @@ function Observatory() {
           {SITE.editor}
           {data.ingest.finishedAt ? ` · ${formatRelative(data.ingest.finishedAt)}` : ""}
         </p>
-        <h1 className="mt-3 font-display text-[2.15rem] italic leading-[1.15] tracking-tight text-fg sm:text-5xl">
+        <p className="mt-4 text-[15px] leading-relaxed text-fg">
+          What moved on a map of 100 names — models, tools, techniques, workflows. Evidence attached.
+          Mentions aren’t rank.
+        </p>
+        <h1 className="mt-6 font-display text-[2.15rem] italic leading-[1.15] tracking-tight text-fg sm:text-5xl">
           {headline}
         </h1>
         <p className="mt-4 text-[15px] leading-relaxed text-muted">{dek}</p>
