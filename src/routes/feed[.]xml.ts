@@ -27,7 +27,7 @@ export const Route = createFileRoute("/feed.xml")({
         const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">
 <channel>
-  <title>${SITE.name} — receipts</title>
+  <title>${SITE.name} — ${SITE.editor}</title>
   <link>${SITE.url}/</link>
   <description>${esc(SITE.description)}</description>
   ${items}

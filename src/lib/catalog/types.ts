@@ -171,7 +171,7 @@ export type CitedMark = {
   label: string;
 };
 
-export type BoardId = "catalog" | "mentions" | "papers" | "aa";
+export type BoardId = "catalog" | "mentions" | "papers" | "aa" | "arena";
 
 export type BoardRank = {
   board: BoardId;

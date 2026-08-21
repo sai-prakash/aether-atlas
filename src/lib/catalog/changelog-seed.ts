@@ -71,4 +71,18 @@ export const CHANGELOG_SEED: ChangelogSeed[] = [
     body: "OpenAI shut the Sora app and web on 26 Apr 2026. Kept on the map as historic. Do not treat as a live ChatGPT video product.",
     sourceUrl: "https://help.openai.com/en/articles/20001152-what-to-know-about-the-sora-discontinuation",
   },
+  {
+    entityId: "muse-glimmer",
+    at: "2026-08-10",
+    title: "Muse Glimmer 30B — Meta’s current open weights",
+    body: "Apache 2.0, 30B, local-agentic. Llama 4 stays on the map as historic so the name still resolves.",
+    sourceUrl: "https://ai.meta.com",
+  },
+  {
+    entityId: "gemma-4",
+    at: "2026-04-02",
+    title: "Gemma 4 ships",
+    body: "Google’s current open-weight family. Gemma 3 is historic on this map.",
+    sourceUrl: "https://ai.google.dev/gemma",
+  },
 ];

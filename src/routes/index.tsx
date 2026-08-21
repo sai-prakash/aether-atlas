@@ -5,12 +5,12 @@ import { CATEGORY_LABEL, LICENSE_LABEL, SOURCE_LABEL } from "@/lib/catalog/types
 import { formatCompact, formatRelative, windowLabel } from "@/lib/utils";
 import { EntityRow } from "@/components/aether/entity-row";
 import { SignalList } from "@/components/aether/signals";
-import { WindowToggle } from "@/components/aether/window-toggle";
 import { Badge } from "@/components/ui/badge";
 import { KIND_LABEL } from "@/lib/catalog/types";
 import { CostTeaser } from "@/components/aether/cost-ledger";
 import { DisagreementList, DisplacementList, LineageList } from "@/components/aether/lens-panels";
 import { healthCopy, sourceBadge } from "@/lib/catalog/health";
+import { WEEK_LETTER } from "@/lib/catalog/ira";
 import { SITE } from "@/lib/site";
 
 export const Route = createFileRoute("/")({
@@ -31,24 +31,29 @@ function Observatory() {
   const okSources = (data.ingest.sources ?? []).filter((s) => s.ok).length;
   const health = data.health;
   const degraded = health.status !== "live";
+  const letterGraf = WEEK_LETTER.body.split("\n\n")[0];
 
   return (
     <div className="mx-auto max-w-6xl stagger-in">
-      <header className="flex flex-col gap-5 border-b border-border pb-8 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-[11px] uppercase tracking-[0.18em] text-subtle">Observatory</p>
-          <h1 className="mt-2 font-display text-4xl italic tracking-tight text-fg sm:text-5xl">
-            The hundred that matter.
-          </h1>
-          <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted">
-            An editorial map of tools, models, techniques, and workflows — re-verified with dates
-            and receipts. Rank is catalog prior, signed, per kind. Mentions are a count. Not a
-            live composite. Signed by {SITE.editor} as of {SITE.verifiedAsOf}.
-          </p>
-        </div>
-        <div className="flex flex-col items-start gap-3 sm:items-end">
-          <WindowToggle value={window} />
-        </div>
+      <header className="border-b border-border pb-8">
+        <p className="text-[11px] uppercase tracking-[0.18em] text-subtle">
+          {SITE.editor} · {SITE.editorTitle}
+        </p>
+        <h1 className="mt-2 font-display text-4xl italic tracking-tight text-fg sm:text-5xl">
+          {WEEK_LETTER.title}
+        </h1>
+        <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted">{letterGraf}</p>
+        <p className="mt-4 flex flex-wrap gap-4 text-sm">
+          <Link to="/week" className="text-accent hover:underline">
+            This week’s letter
+          </Link>
+          <Link to="/ira" className="text-muted hover:text-fg">
+            Masthead
+          </Link>
+          <Link to="/refusals" className="text-muted hover:text-fg">
+            Kill-list
+          </Link>
+        </p>
       </header>
 
       <p

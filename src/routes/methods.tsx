@@ -3,6 +3,7 @@ import { listEntities } from "@/lib/server/queries";
 import { KIND_LABEL } from "@/lib/catalog/types";
 import { EntityCard } from "@/components/aether/entity-row";
 import { CostLedger } from "@/components/aether/cost-ledger";
+import { SITE } from "@/lib/site";
 
 export const Route = createFileRoute("/methods")({
   loader: async () => {
@@ -32,9 +33,9 @@ function Methods() {
         <p className="text-[11px] uppercase tracking-[0.16em] text-subtle">Methodology</p>
         <h2 className="mt-2 font-display text-2xl italic">Put a name on the rank.</h2>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted">
-          Hundred is an editorial map of ~100 names, re-verified with dates. Rank is catalog prior,
-          per kind. Mentions are weather. Cited boards stay cited. We do not compete with TAAFT on
-          coverage or Arena on pairwise preference.
+          Hundred is an editorial map of ~100 names, signed by {SITE.editor}, an AI editor. Rank is
+          catalog prior, per kind. Mentions are weather. Cited boards stay cited. We do not compete
+          with TAAFT on coverage or Arena on pairwise preference.
         </p>
         <div className="mt-5 overflow-x-auto">
           <table className="w-full min-w-[36rem] text-left text-sm">

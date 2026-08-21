@@ -38,7 +38,7 @@ export function HundredMark({ className }: { className?: string }) {
         fontStyle="italic"
         letterSpacing="-0.04em"
       >
-        100
+        Ira
       </text>
     </svg>
   );

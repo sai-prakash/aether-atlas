@@ -15,11 +15,13 @@ import { Route as AtlasRouteImport } from './routes/atlas'
 import { Route as CompareRouteImport } from './routes/compare'
 import { Route as DriftRouteImport } from './routes/drift'
 import { Route as FeedDotxmlRouteImport } from './routes/feed[.]xml'
+import { Route as IraRouteImport } from './routes/ira'
 import { Route as LensRouteImport } from './routes/lens'
 import { Route as MethodRouteImport } from './routes/method'
 import { Route as MethodsRouteImport } from './routes/methods'
 import { Route as PapersRouteImport } from './routes/papers'
 import { Route as RankingsRouteImport } from './routes/rankings'
+import { Route as RefusalsRouteImport } from './routes/refusals'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as SignalsRouteImport } from './routes/signals'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
@@ -58,6 +60,11 @@ const FeedDotxmlRoute = FeedDotxmlRouteImport.update({
   path: '/feed.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
+const IraRoute = IraRouteImport.update({
+  id: '/ira',
+  path: '/ira',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LensRoute = LensRouteImport.update({
   id: '/lens',
   path: '/lens',
@@ -81,6 +88,11 @@ const PapersRoute = PapersRouteImport.update({
 const RankingsRoute = RankingsRouteImport.update({
   id: '/rankings',
   path: '/rankings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RefusalsRoute = RefusalsRouteImport.update({
+  id: '/refusals',
+  path: '/refusals',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
@@ -126,11 +138,13 @@ export interface FileRoutesByFullPath {
   '/compare': typeof CompareRoute
   '/drift': typeof DriftRoute
   '/feed.xml': typeof FeedDotxmlRoute
+  '/ira': typeof IraRoute
   '/lens': typeof LensRoute
   '/method': typeof MethodRoute
   '/methods': typeof MethodsRoute
   '/papers': typeof PapersRoute
   '/rankings': typeof RankingsRoute
+  '/refusals': typeof RefusalsRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/signals': typeof SignalsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -146,11 +160,13 @@ export interface FileRoutesByTo {
   '/compare': typeof CompareRoute
   '/drift': typeof DriftRoute
   '/feed.xml': typeof FeedDotxmlRoute
+  '/ira': typeof IraRoute
   '/lens': typeof LensRoute
   '/method': typeof MethodRoute
   '/methods': typeof MethodsRoute
   '/papers': typeof PapersRoute
   '/rankings': typeof RankingsRoute
+  '/refusals': typeof RefusalsRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/signals': typeof SignalsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -167,11 +183,13 @@ export interface FileRoutesById {
   '/compare': typeof CompareRoute
   '/drift': typeof DriftRoute
   '/feed.xml': typeof FeedDotxmlRoute
+  '/ira': typeof IraRoute
   '/lens': typeof LensRoute
   '/method': typeof MethodRoute
   '/methods': typeof MethodsRoute
   '/papers': typeof PapersRoute
   '/rankings': typeof RankingsRoute
+  '/refusals': typeof RefusalsRoute
   '/robots.txt': typeof RobotsDottxtRoute
   '/signals': typeof SignalsRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -189,11 +207,13 @@ export interface FileRouteTypes {
     | '/compare'
     | '/drift'
     | '/feed.xml'
+    | '/ira'
     | '/lens'
     | '/method'
     | '/methods'
     | '/papers'
     | '/rankings'
+    | '/refusals'
     | '/robots.txt'
     | '/signals'
     | '/sitemap.xml'
@@ -209,11 +229,13 @@ export interface FileRouteTypes {
     | '/compare'
     | '/drift'
     | '/feed.xml'
+    | '/ira'
     | '/lens'
     | '/method'
     | '/methods'
     | '/papers'
     | '/rankings'
+    | '/refusals'
     | '/robots.txt'
     | '/signals'
     | '/sitemap.xml'
@@ -229,11 +251,13 @@ export interface FileRouteTypes {
     | '/compare'
     | '/drift'
     | '/feed.xml'
+    | '/ira'
     | '/lens'
     | '/method'
     | '/methods'
     | '/papers'
     | '/rankings'
+    | '/refusals'
     | '/robots.txt'
     | '/signals'
     | '/sitemap.xml'
@@ -250,11 +274,13 @@ export interface RootRouteChildren {
   CompareRoute: typeof CompareRoute
   DriftRoute: typeof DriftRoute
   FeedDotxmlRoute: typeof FeedDotxmlRoute
+  IraRoute: typeof IraRoute
   LensRoute: typeof LensRoute
   MethodRoute: typeof MethodRoute
   MethodsRoute: typeof MethodsRoute
   PapersRoute: typeof PapersRoute
   RankingsRoute: typeof RankingsRoute
+  RefusalsRoute: typeof RefusalsRoute
   RobotsDottxtRoute: typeof RobotsDottxtRoute
   SignalsRoute: typeof SignalsRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
@@ -308,6 +334,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FeedDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ira': {
+      id: '/ira'
+      path: '/ira'
+      fullPath: '/ira'
+      preLoaderRoute: typeof IraRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lens': {
       id: '/lens'
       path: '/lens'
@@ -341,6 +374,13 @@ declare module '@tanstack/react-router' {
       path: '/rankings'
       fullPath: '/rankings'
       preLoaderRoute: typeof RankingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/refusals': {
+      id: '/refusals'
+      path: '/refusals'
+      fullPath: '/refusals'
+      preLoaderRoute: typeof RefusalsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/robots.txt': {
@@ -402,11 +442,13 @@ const rootRouteChildren: RootRouteChildren = {
   CompareRoute: CompareRoute,
   DriftRoute: DriftRoute,
   FeedDotxmlRoute: FeedDotxmlRoute,
+  IraRoute: IraRoute,
   LensRoute: LensRoute,
   MethodRoute: MethodRoute,
   MethodsRoute: MethodsRoute,
   PapersRoute: PapersRoute,
   RankingsRoute: RankingsRoute,
+  RefusalsRoute: RefusalsRoute,
   RobotsDottxtRoute: RobotsDottxtRoute,
   SignalsRoute: SignalsRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,

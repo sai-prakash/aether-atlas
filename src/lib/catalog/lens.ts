@@ -9,6 +9,8 @@ import type {
   BoardRank,
 } from "./types";
 
+import { ARENA_CITED } from "./ira";
+
 export type { CitedMark, Lens, Lineage, Displacement, Disagreement };
 
 export const BOARD_LABEL: Record<BoardRank["board"], string> = {
@@ -16,6 +18,7 @@ export const BOARD_LABEL: Record<BoardRank["board"], string> = {
   mentions: "Firehose",
   papers: "Papers",
   aa: "Artificial Analysis",
+  arena: "Arena text",
 };
 
 const PAPER_SOURCES = new Set(["arxiv", "hf-papers"]);
@@ -76,6 +79,10 @@ export function buildLens(
     const aa = citedAa[e.id];
     if (aa) {
       boards.push({ board: "aa", rank: aa.rank, value: aa.value, label: aa.label });
+    }
+    const arena = ARENA_CITED[e.id];
+    if (arena) {
+      boards.push({ board: "arena", rank: arena.rank, value: arena.value, label: arena.label });
     }
     if (boards.length < 2) continue;
     const ranks = boards.map((b) => b.rank);

@@ -7,9 +7,11 @@ import {
   Layers,
   Map,
   MoreHorizontal,
-  Orbit,
+  PenLine,
   Radio,
   Scale,
+  ShieldOff,
+  User,
   Waypoints,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -19,15 +21,17 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { SITE } from "@/lib/site";
 
 const NAV = [
-  { to: "/", label: "Observatory", icon: Orbit },
-  { to: "/atlas", label: "Atlas", icon: Map },
+  { to: "/", label: "Desk", icon: PenLine },
+  { to: "/week", label: "This week", icon: BookOpen },
   { to: "/rankings", label: "Rankings", icon: Scale },
-  { to: "/drift", label: "Drift", icon: Activity },
   { to: "/lens", label: "Lens", icon: Waypoints },
+  { to: "/ira", label: "Ira", icon: User },
 ] as const;
 
 const MORE = [
-  { to: "/week", label: "This week", icon: BookOpen },
+  { to: "/refusals", label: "Kill-list", icon: ShieldOff },
+  { to: "/atlas", label: "Catalog", icon: Map },
+  { to: "/drift", label: "Weather", icon: Activity },
   { to: "/signals", label: "Signals", icon: Radio },
   { to: "/papers", label: "Papers", icon: BookOpen },
   { to: "/methods", label: "Methods", icon: Layers },
@@ -66,7 +70,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
           ))}
         </nav>
         <p className="px-5 pb-5 text-[11px] leading-relaxed text-subtle">
-          Signed by {SITE.editor}. Rank is prior. Heat is a count.
+          {SITE.editor}, {SITE.editorTitle}. Rank is prior.
           <br />
           <a href="/feed.xml" className="hover:text-fg">
             RSS
@@ -164,7 +168,7 @@ function NavLink({
 }: {
   to: (typeof NAV)[number]["to"] | (typeof MORE)[number]["to"];
   label: string;
-  icon: typeof Orbit;
+  icon: typeof PenLine;
   active: boolean;
 }) {
   return (
