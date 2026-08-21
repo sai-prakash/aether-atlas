@@ -138,6 +138,46 @@ export type Mover = {
   rankDelta: number;
 };
 
+export type CitedMark = {
+  entityId: string;
+  rank: number;
+  value: number;
+  label: string;
+};
+
+export type BoardId = "catalog" | "mentions" | "papers" | "aa";
+
+export type BoardRank = {
+  board: BoardId;
+  rank: number;
+  value: number;
+  label: string;
+};
+
+export type Disagreement = {
+  entity: Entity;
+  boards: BoardRank[];
+  spread: number;
+};
+
+export type Lineage = {
+  technique: Entity;
+  usedBy: Entity[];
+};
+
+export type Displacement = {
+  category: string;
+  commercial: Entity;
+  open: Entity;
+  mentionGap: number;
+};
+
+export type Lens = {
+  disagreements: Disagreement[];
+  lineage: Lineage[];
+  displacement: Displacement[];
+};
+
 export type Dashboard = {
   generatedAt: string;
   window: TimeWindow;
@@ -158,6 +198,7 @@ export type Dashboard = {
   licenseSplit: { license: string; count: number; avgScore: number }[];
   signals: Signal[];
   insight: Insight | null;
+  lens: Lens;
 };
 
 export type PulsePayload = {
@@ -171,6 +212,7 @@ export type PulsePayload = {
   snapshots: Record<string, SnapPoint[]>;
   byCategory: Dashboard["byCategory"];
   licenseSplit: Dashboard["licenseSplit"];
+  citedAa?: Record<string, CitedMark>;
 };
 
 
@@ -212,7 +254,9 @@ export const SOURCE_LABEL: Record<string, string> = {
   hn: "Hacker News",
   arxiv: "arXiv",
   hf: "Hugging Face",
+  "hf-papers": "HF Daily Papers",
   github: "GitHub",
   reddit: "Reddit",
   rss: "Labs RSS",
+  aa: "Artificial Analysis",
 };

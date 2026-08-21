@@ -37,7 +37,7 @@ export const Route = createFileRoute("/e/$slug")({
 });
 
 function EntityPage() {
-  const { entity, signals, related, snapshots } = Route.useLoaderData();
+  const { entity, signals, related, snapshots, uses, usedBy } = Route.useLoaderData();
   const chart = snapshots.map((s) => ({
     t: atStamp(s.at, 10),
     score: s.score,
@@ -120,6 +120,44 @@ function EntityPage() {
           </ResponsiveContainer>
         </div>
       </section>
+
+      {uses.length || usedBy.length ? (
+        <section className="mt-8">
+          <h2 className="mb-3 font-display text-2xl italic">Lineage</h2>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {uses.length ? (
+              <div className="rounded-xl bg-surface p-4 shadow-[var(--shadow-border)]">
+                <p className="text-[11px] uppercase tracking-[0.14em] text-subtle">Built on</p>
+                <ul className="mt-3 space-y-2">
+                  {uses.map((e) => (
+                    <li key={e.id}>
+                      <Link to="/e/$slug" params={{ slug: e.id }} className="text-sm hover:text-accent">
+                        {e.name}
+                      </Link>
+                      <span className="ml-2 text-[11px] text-subtle">{KIND_LABEL[e.kind]}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+            {usedBy.length ? (
+              <div className="rounded-xl bg-surface p-4 shadow-[var(--shadow-border)]">
+                <p className="text-[11px] uppercase tracking-[0.14em] text-subtle">Ships in</p>
+                <ul className="mt-3 space-y-2">
+                  {usedBy.slice(0, 12).map((e) => (
+                    <li key={e.id}>
+                      <Link to="/e/$slug" params={{ slug: e.id }} className="text-sm hover:text-accent">
+                        {e.name}
+                      </Link>
+                      <span className="ml-2 text-[11px] text-subtle">{KIND_LABEL[e.kind]}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+          </div>
+        </section>
+      ) : null}
 
       {entity.features.length ? (
         <section className="mt-8">

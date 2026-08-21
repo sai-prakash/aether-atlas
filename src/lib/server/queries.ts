@@ -3,6 +3,7 @@ import { getSql } from "@/lib/db";
 import { ensureCatalog } from "@/lib/catalog/seed";
 import type { Dashboard, Entity, Mover, PulsePayload, TimeWindow } from "@/lib/catalog/types";
 import { windowHours } from "@/lib/catalog/scoring";
+import { buildLens, lineageFor } from "@/lib/catalog/lens";
 import { PULSE } from "@/lib/ingest/budget";
 import { getPulse, patchPulse } from "@/lib/ingest/pulse";
 import { claimPulse, runIngest } from "@/lib/ingest/run";
@@ -54,6 +55,7 @@ function dashboardFrom(pulse: PulsePayload, window: TimeWindow): Dashboard {
     licenseSplit: pulse.licenseSplit,
     signals: signals.slice(0, 24),
     insight: pulse.insight,
+    lens: buildLens(ranked, pulse.signals, pulse.citedAa),
   };
 }
 
@@ -106,6 +108,7 @@ export const getEntity = createServerFn({ method: "GET" })
     const sameKind = pulse.entities.filter((e) => e.kind === entity.kind && e.id !== entity.id).slice(0, 6);
     const relatedMap = new Map<string, Entity>();
     for (const r of [...byTech, ...sameKind]) relatedMap.set(r.id, r);
+    const graph = lineageFor(entity, pulse.entities);
     return {
       entity,
       signals: pulse.signals.filter((s) => s.entityId === entity.id).slice(0, 20),
@@ -114,6 +117,8 @@ export const getEntity = createServerFn({ method: "GET" })
         ...p,
         at: typeof p.at === "string" ? p.at : new Date(p.at).toISOString(),
       })),
+      uses: graph.uses,
+      usedBy: graph.usedBy,
     };
   });
 
@@ -305,4 +310,13 @@ Live signals: ${JSON.stringify(signals)}`;
   };
   await patchPulse(sql, { insight });
   return { ok: true as const, cached: false as const, insight };
+});
+
+export const getLens = createServerFn({ method: "GET" }).handler(async () => {
+  const pulse = await desk();
+  return {
+    builtAt: pulse.builtAt,
+    ingest: pulse.ingest,
+    ...buildLens(pulse.entities, pulse.signals, pulse.citedAa),
+  };
 });

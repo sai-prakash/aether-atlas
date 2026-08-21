@@ -3,6 +3,7 @@ import { aetherIndex } from "@/lib/catalog/scoring";
 import type { SourceStatus } from "@/lib/catalog/types";
 import { PULSE } from "./budget";
 import { fetchAllSources, type RawSignal } from "./sources";
+import { fetchCitedAa } from "./cited";
 import { materializePulse } from "./pulse";
 
 export async function lastSuccessfulRun(sql: Sql): Promise<string | null> {
@@ -63,20 +64,21 @@ export async function runIngest(
   }
 
   try {
-    const { signals, sources } = await fetchAllSources();
+    const [{ signals, sources }, cited] = await Promise.all([fetchAllSources(), fetchCitedAa()]);
+    const allSources = [...sources, cited.status];
     const inserted = await upsertSignals(sql, signals);
     await recomputeScores(sql);
     await pruneDesk(sql);
 
-    const stats = { inserted, signals: signals.length, sources: sources.filter((s) => s.ok).length };
+    const stats = { inserted, signals: signals.length, sources: allSources.filter((s) => s.ok).length };
     if (runId) {
       await sql.query(
         `update ingest_runs set finished_at = now(), status = 'ok', sources = $1, stats = $2 where id = $3`,
-        [JSON.stringify(sources), JSON.stringify(stats), runId],
+        [JSON.stringify(allSources), JSON.stringify(stats), runId],
       );
     }
-    await materializePulse(sql);
-    return { sources, inserted, updated: 0 };
+    await materializePulse(sql, { citedAa: cited.ranks });
+    return { sources: allSources, inserted, updated: 0 };
   } catch (err) {
     const message = err instanceof Error ? err.message : "ingest failed";
     if (runId) {

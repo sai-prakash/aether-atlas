@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AtlasRouteImport } from './routes/atlas'
 import { Route as CompareRouteImport } from './routes/compare'
 import { Route as DriftRouteImport } from './routes/drift'
+import { Route as LensRouteImport } from './routes/lens'
 import { Route as MethodsRouteImport } from './routes/methods'
 import { Route as PapersRouteImport } from './routes/papers'
 import { Route as RankingsRouteImport } from './routes/rankings'
@@ -38,6 +39,11 @@ const CompareRoute = CompareRouteImport.update({
 const DriftRoute = DriftRouteImport.update({
   id: '/drift',
   path: '/drift',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LensRoute = LensRouteImport.update({
+  id: '/lens',
+  path: '/lens',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MethodsRoute = MethodsRouteImport.update({
@@ -76,6 +82,7 @@ export interface FileRoutesByFullPath {
   '/atlas': typeof AtlasRoute
   '/compare': typeof CompareRoute
   '/drift': typeof DriftRoute
+  '/lens': typeof LensRoute
   '/methods': typeof MethodsRoute
   '/papers': typeof PapersRoute
   '/rankings': typeof RankingsRoute
@@ -88,6 +95,7 @@ export interface FileRoutesByTo {
   '/atlas': typeof AtlasRoute
   '/compare': typeof CompareRoute
   '/drift': typeof DriftRoute
+  '/lens': typeof LensRoute
   '/methods': typeof MethodsRoute
   '/papers': typeof PapersRoute
   '/rankings': typeof RankingsRoute
@@ -101,6 +109,7 @@ export interface FileRoutesById {
   '/atlas': typeof AtlasRoute
   '/compare': typeof CompareRoute
   '/drift': typeof DriftRoute
+  '/lens': typeof LensRoute
   '/methods': typeof MethodsRoute
   '/papers': typeof PapersRoute
   '/rankings': typeof RankingsRoute
@@ -115,6 +124,7 @@ export interface FileRouteTypes {
     | '/atlas'
     | '/compare'
     | '/drift'
+    | '/lens'
     | '/methods'
     | '/papers'
     | '/rankings'
@@ -127,6 +137,7 @@ export interface FileRouteTypes {
     | '/atlas'
     | '/compare'
     | '/drift'
+    | '/lens'
     | '/methods'
     | '/papers'
     | '/rankings'
@@ -139,6 +150,7 @@ export interface FileRouteTypes {
     | '/atlas'
     | '/compare'
     | '/drift'
+    | '/lens'
     | '/methods'
     | '/papers'
     | '/rankings'
@@ -152,6 +164,7 @@ export interface RootRouteChildren {
   AtlasRoute: typeof AtlasRoute
   CompareRoute: typeof CompareRoute
   DriftRoute: typeof DriftRoute
+  LensRoute: typeof LensRoute
   MethodsRoute: typeof MethodsRoute
   PapersRoute: typeof PapersRoute
   RankingsRoute: typeof RankingsRoute
@@ -188,6 +201,13 @@ declare module '@tanstack/react-router' {
       path: '/drift'
       fullPath: '/drift'
       preLoaderRoute: typeof DriftRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lens': {
+      id: '/lens'
+      path: '/lens'
+      fullPath: '/lens'
+      preLoaderRoute: typeof LensRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/methods': {
@@ -240,6 +260,7 @@ const rootRouteChildren: RootRouteChildren = {
   AtlasRoute: AtlasRoute,
   CompareRoute: CompareRoute,
   DriftRoute: DriftRoute,
+  LensRoute: LensRoute,
   MethodsRoute: MethodsRoute,
   PapersRoute: PapersRoute,
   RankingsRoute: RankingsRoute,

@@ -23,6 +23,7 @@ export async function fetchAllSources(): Promise<{
     { name: "hn", run: fetchHn },
     { name: "arxiv", run: fetchArxiv },
     { name: "hf", run: fetchHf },
+    { name: "hf-papers", run: fetchHfPapers },
     { name: "github", run: fetchGithub },
     { name: "reddit", run: fetchReddit },
     { name: "rss", run: fetchRss },
@@ -153,7 +154,7 @@ async function fetchHf(): Promise<RawSignal[]> {
       pipeline_tag?: string;
       lastModified?: string;
     }>
-  >("https://huggingface.co/api/models?sort=trending&limit=18&direction=-1");
+  >("https://huggingface.co/api/models?sort=trendingScore&limit=18&direction=-1");
   return (models ?? []).slice(0, 18).map((m) => {
     const title = m.id;
     return {
@@ -168,6 +169,41 @@ async function fetchHf(): Promise<RawSignal[]> {
       entityId: matchEntity(title.replace(/[-_/]/g, " ")),
     };
   });
+}
+
+async function fetchHfPapers(): Promise<RawSignal[]> {
+  const rows = await getJson<
+    Array<{
+      title?: string;
+      summary?: string;
+      publishedAt?: string;
+      paper?: {
+        id?: string;
+        title?: string;
+        summary?: string;
+        upvotes?: number;
+        publishedAt?: string;
+      };
+    }>
+  >("https://huggingface.co/api/daily_papers?limit=24&sort=trending");
+  const out: RawSignal[] = [];
+  for (const row of rows ?? []) {
+    const paper = row.paper ?? {};
+    const title = (row.title || paper.title || "").trim();
+    const id = paper.id || "";
+    if (!title || !id) continue;
+    const summary = (row.summary || paper.summary || "").replace(/\s+/g, " ").trim();
+    out.push({
+      source: "hf-papers",
+      title,
+      url: `https://huggingface.co/papers/${id}`,
+      snippet: summary.slice(0, 320),
+      score: Number(paper.upvotes ?? 0),
+      publishedAt: row.publishedAt ?? paper.publishedAt ?? null,
+      entityId: matchEntity(`${title} ${summary.slice(0, 400)}`),
+    });
+  }
+  return out;
 }
 
 async function fetchGithub(): Promise<RawSignal[]> {

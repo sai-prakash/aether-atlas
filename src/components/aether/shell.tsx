@@ -10,6 +10,7 @@ import {
   Orbit,
   Radio,
   Scale,
+  Waypoints,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AetherMark } from "./mark";
@@ -21,10 +22,11 @@ const NAV = [
   { to: "/atlas", label: "Atlas", icon: Map },
   { to: "/rankings", label: "Rankings", icon: Scale },
   { to: "/drift", label: "Drift", icon: Activity },
-  { to: "/signals", label: "Signals", icon: Radio },
+  { to: "/lens", label: "Lens", icon: Waypoints },
 ] as const;
 
 const MORE = [
+  { to: "/signals", label: "Signals", icon: Radio },
   { to: "/papers", label: "Papers", icon: BookOpen },
   { to: "/methods", label: "Methods", icon: Layers },
   { to: "/compare", label: "Compare", icon: GitCompare },

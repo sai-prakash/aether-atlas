@@ -11,6 +11,7 @@ import { Delta } from "@/components/aether/delta";
 import { Badge } from "@/components/ui/badge";
 import { WEIGHTS } from "@/lib/catalog/scoring";
 import { CostTeaser } from "@/components/aether/cost-ledger";
+import { DisagreementList, DisplacementList, LineageList } from "@/components/aether/lens-panels";
 
 export const Route = createFileRoute("/")({
   validateSearch: (s: Record<string, unknown>): { window?: TimeWindow } => {
@@ -138,6 +139,40 @@ function Observatory() {
           </section>
         </div>
       </div>
+
+      <section className="mt-10 grid gap-8 lg:grid-cols-2">
+        <div>
+          <div className="mb-3 flex items-baseline justify-between">
+            <h2 className="font-display text-2xl italic">Where they disagree</h2>
+            <Link to="/lens" className="text-xs text-muted hover:text-fg">
+              Lens
+            </Link>
+          </div>
+          <div className="rounded-xl bg-surface px-4 shadow-[var(--shadow-border)]">
+            <DisagreementList rows={data.lens.disagreements} compact />
+          </div>
+        </div>
+        <div>
+          <div className="mb-3 flex items-baseline justify-between">
+            <h2 className="font-display text-2xl italic">Technique gravity</h2>
+            <Link to="/lens" className="text-xs text-muted hover:text-fg">
+              Lineage
+            </Link>
+          </div>
+          <div className="rounded-xl bg-surface px-4 shadow-[var(--shadow-border)]">
+            <LineageList rows={data.lens.lineage} compact />
+          </div>
+        </div>
+      </section>
+
+      {data.lens.displacement.length ? (
+        <section className="mt-8">
+          <h2 className="mb-3 font-display text-2xl italic">Open displacement</h2>
+          <div className="rounded-xl bg-surface px-4 shadow-[var(--shadow-border)]">
+            <DisplacementList rows={data.lens.displacement} compact />
+          </div>
+        </section>
+      ) : null}
 
       {data.insight ? (
         <section className="mt-10 rounded-xl bg-surface p-5 shadow-[var(--shadow-border)]">

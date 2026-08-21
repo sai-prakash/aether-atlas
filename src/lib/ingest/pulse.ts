@@ -10,6 +10,7 @@ import type {
   SnapPoint,
   SourceStatus,
   TimeWindow,
+  CitedMark,
 } from "@/lib/catalog/types";
 import { PULSE } from "./budget";
 
@@ -165,7 +166,10 @@ async function ingestStatus(sql: Sql): Promise<IngestStatus> {
 }
 
 /** Rebuild the single-row desk snapshot from current tables. Called after a pulse, not on page views. */
-export async function materializePulse(sql: Sql): Promise<PulsePayload> {
+export async function materializePulse(
+  sql: Sql,
+  extra?: { citedAa?: Record<string, CitedMark> },
+): Promise<PulsePayload> {
   const now = Date.now();
   const since45 = new Date(now - PULSE.snapshotDays * 86_400_000).toISOString();
   const dayAgo = new Date(now - 86_400_000).toISOString();
@@ -230,6 +234,7 @@ export async function materializePulse(sql: Sql): Promise<PulsePayload> {
     snapshots,
     byCategory: agg.byCategory,
     licenseSplit: agg.licenseSplit,
+    citedAa: extra?.citedAa ?? {},
   };
 
   try {

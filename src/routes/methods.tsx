@@ -61,6 +61,18 @@ function Methods() {
         <CostLedger />
       </section>
 
+      <section className="mb-12 rounded-xl bg-surface p-5 shadow-[var(--shadow-border)]">
+        <p className="text-[11px] uppercase tracking-[0.16em] text-subtle">Lens</p>
+        <h2 className="mt-2 font-display text-2xl italic">Cite, don’t absorb.</h2>
+        <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted">
+          TAAFT, Futurepedia, Artificial Analysis, Arena, and Hugging Face Daily Papers each own one
+          column. Aether does not scrape their catalogs or blend their numbers into the Aether Index.
+          The daily pulse cites public firehoses (and Artificial Analysis if <span className="font-mono text-xs">AA_API_KEY</span>{" "}
+          is set). The Lens then joins ranks they will not put on one page: catalog prior vs firehose
+          vs papers vs evals, technique lineage, and open-vs-commercial displacement.
+        </p>
+      </section>
+
       {protocols.length ? (
         <section className="mb-10">
           <h2 className="mb-3 font-display text-2xl italic">{KIND_LABEL.protocol}</h2>

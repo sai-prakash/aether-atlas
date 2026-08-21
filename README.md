@@ -17,7 +17,9 @@ Aether is an observatory, not a directory dump.
 - **Compare** — up to three entities side by side
 - **⌘K** — jump anywhere
 
-Sources: Hacker News, arXiv, Hugging Face, Reddit, lab RSS. GitHub only when a token is present. Discord is closed; X has no free firehose — those rooms are not faked.
+Sources: Hacker News, arXiv, Hugging Face models + Daily Papers, Reddit, lab RSS. GitHub only when a token is present. Optional Artificial Analysis (cited, never folded into the index). Discord is closed; X has no free firehose — those rooms are not faked.
+
+The Lens is the product that directories and eval boards will not ship: disagreement across cited ranks, technique lineage, and open-source displacement.
 
 ## Deploy on the free tier
 
@@ -65,6 +67,7 @@ Aether Index = catalog prior + live mention velocity + public social (GitHub/HF)
 | `XAI_API_KEY` | No | On-demand daily brief. $0 if unused. |
 | `CRON_SECRET` | Recommended | Protects `/api/cron`. |
 | `GITHUB_TOKEN` | No | Enables GitHub search during the pulse. |
+| `AA_API_KEY` | No | Cites Artificial Analysis Intelligence ranks in the Lens. Attribution required. $0 on their free tier. |
 
 Do not commit secrets. Never put non-`VITE_` vars in client code.
 
