@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as ArchiveRouteImport } from './routes/archive'
 import { Route as AtlasRouteImport } from './routes/atlas'
 import { Route as CompareRouteImport } from './routes/compare'
 import { Route as DistributeRouteImport } from './routes/distribute'
@@ -30,7 +31,9 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as WeekRouteImport } from './routes/week'
 import { Route as WeekDotmdRouteImport } from './routes/week[.]md'
 import { Route as ApiAtlasDotjsonRouteImport } from './routes/api/atlas[.]json'
+import { Route as ApiAttentionDotcsvRouteImport } from './routes/api/attention[.]csv'
 import { Route as ApiCronRouteImport } from './routes/api/cron'
+import { Route as ApiDayDotjsonRouteImport } from './routes/api/day[.]json'
 import { Route as ApiPublishRouteImport } from './routes/api/publish'
 import { Route as ApiThreadDotjsonRouteImport } from './routes/api/thread[.]json'
 import { Route as ESlugRouteImport } from './routes/e.$slug'
@@ -43,6 +46,11 @@ const IndexRoute = IndexRouteImport.update({
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ArchiveRoute = ArchiveRouteImport.update({
+  id: '/archive',
+  path: '/archive',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AtlasRoute = AtlasRouteImport.update({
@@ -140,9 +148,19 @@ const ApiAtlasDotjsonRoute = ApiAtlasDotjsonRouteImport.update({
   path: '/api/atlas.json',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAttentionDotcsvRoute = ApiAttentionDotcsvRouteImport.update({
+  id: '/api/attention.csv',
+  path: '/api/attention.csv',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiCronRoute = ApiCronRouteImport.update({
   id: '/api/cron',
   path: '/api/cron',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiDayDotjsonRoute = ApiDayDotjsonRouteImport.update({
+  id: '/api/day.json',
+  path: '/api/day.json',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublishRoute = ApiPublishRouteImport.update({
@@ -164,6 +182,7 @@ const ESlugRoute = ESlugRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/archive': typeof ArchiveRoute
   '/atlas': typeof AtlasRoute
   '/compare': typeof CompareRoute
   '/distribute': typeof DistributeRoute
@@ -183,7 +202,9 @@ export interface FileRoutesByFullPath {
   '/week': typeof WeekRoute
   '/week.md': typeof WeekDotmdRoute
   '/api/atlas.json': typeof ApiAtlasDotjsonRoute
+  '/api/attention.csv': typeof ApiAttentionDotcsvRoute
   '/api/cron': typeof ApiCronRoute
+  '/api/day.json': typeof ApiDayDotjsonRoute
   '/api/publish': typeof ApiPublishRoute
   '/api/thread.json': typeof ApiThreadDotjsonRoute
   '/e/$slug': typeof ESlugRoute
@@ -191,6 +212,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/archive': typeof ArchiveRoute
   '/atlas': typeof AtlasRoute
   '/compare': typeof CompareRoute
   '/distribute': typeof DistributeRoute
@@ -210,7 +232,9 @@ export interface FileRoutesByTo {
   '/week': typeof WeekRoute
   '/week.md': typeof WeekDotmdRoute
   '/api/atlas.json': typeof ApiAtlasDotjsonRoute
+  '/api/attention.csv': typeof ApiAttentionDotcsvRoute
   '/api/cron': typeof ApiCronRoute
+  '/api/day.json': typeof ApiDayDotjsonRoute
   '/api/publish': typeof ApiPublishRoute
   '/api/thread.json': typeof ApiThreadDotjsonRoute
   '/e/$slug': typeof ESlugRoute
@@ -219,6 +243,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/archive': typeof ArchiveRoute
   '/atlas': typeof AtlasRoute
   '/compare': typeof CompareRoute
   '/distribute': typeof DistributeRoute
@@ -238,7 +263,9 @@ export interface FileRoutesById {
   '/week': typeof WeekRoute
   '/week.md': typeof WeekDotmdRoute
   '/api/atlas.json': typeof ApiAtlasDotjsonRoute
+  '/api/attention.csv': typeof ApiAttentionDotcsvRoute
   '/api/cron': typeof ApiCronRoute
+  '/api/day.json': typeof ApiDayDotjsonRoute
   '/api/publish': typeof ApiPublishRoute
   '/api/thread.json': typeof ApiThreadDotjsonRoute
   '/e/$slug': typeof ESlugRoute
@@ -248,6 +275,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/archive'
     | '/atlas'
     | '/compare'
     | '/distribute'
@@ -267,7 +295,9 @@ export interface FileRouteTypes {
     | '/week'
     | '/week.md'
     | '/api/atlas.json'
+    | '/api/attention.csv'
     | '/api/cron'
+    | '/api/day.json'
     | '/api/publish'
     | '/api/thread.json'
     | '/e/$slug'
@@ -275,6 +305,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/archive'
     | '/atlas'
     | '/compare'
     | '/distribute'
@@ -294,7 +325,9 @@ export interface FileRouteTypes {
     | '/week'
     | '/week.md'
     | '/api/atlas.json'
+    | '/api/attention.csv'
     | '/api/cron'
+    | '/api/day.json'
     | '/api/publish'
     | '/api/thread.json'
     | '/e/$slug'
@@ -302,6 +335,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/about'
+    | '/archive'
     | '/atlas'
     | '/compare'
     | '/distribute'
@@ -321,7 +355,9 @@ export interface FileRouteTypes {
     | '/week'
     | '/week.md'
     | '/api/atlas.json'
+    | '/api/attention.csv'
     | '/api/cron'
+    | '/api/day.json'
     | '/api/publish'
     | '/api/thread.json'
     | '/e/$slug'
@@ -330,6 +366,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  ArchiveRoute: typeof ArchiveRoute
   AtlasRoute: typeof AtlasRoute
   CompareRoute: typeof CompareRoute
   DistributeRoute: typeof DistributeRoute
@@ -349,7 +386,9 @@ export interface RootRouteChildren {
   WeekRoute: typeof WeekRoute
   WeekDotmdRoute: typeof WeekDotmdRoute
   ApiAtlasDotjsonRoute: typeof ApiAtlasDotjsonRoute
+  ApiAttentionDotcsvRoute: typeof ApiAttentionDotcsvRoute
   ApiCronRoute: typeof ApiCronRoute
+  ApiDayDotjsonRoute: typeof ApiDayDotjsonRoute
   ApiPublishRoute: typeof ApiPublishRoute
   ApiThreadDotjsonRoute: typeof ApiThreadDotjsonRoute
   ESlugRoute: typeof ESlugRoute
@@ -369,6 +408,13 @@ declare module '@tanstack/react-router' {
       path: '/about'
       fullPath: '/about'
       preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/archive': {
+      id: '/archive'
+      path: '/archive'
+      fullPath: '/archive'
+      preLoaderRoute: typeof ArchiveRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/atlas': {
@@ -504,11 +550,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAtlasDotjsonRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/attention.csv': {
+      id: '/api/attention.csv'
+      path: '/api/attention.csv'
+      fullPath: '/api/attention.csv'
+      preLoaderRoute: typeof ApiAttentionDotcsvRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/cron': {
       id: '/api/cron'
       path: '/api/cron'
       fullPath: '/api/cron'
       preLoaderRoute: typeof ApiCronRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/day.json': {
+      id: '/api/day.json'
+      path: '/api/day.json'
+      fullPath: '/api/day.json'
+      preLoaderRoute: typeof ApiDayDotjsonRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/publish': {
@@ -538,6 +598,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  ArchiveRoute: ArchiveRoute,
   AtlasRoute: AtlasRoute,
   CompareRoute: CompareRoute,
   DistributeRoute: DistributeRoute,
@@ -557,7 +618,9 @@ const rootRouteChildren: RootRouteChildren = {
   WeekRoute: WeekRoute,
   WeekDotmdRoute: WeekDotmdRoute,
   ApiAtlasDotjsonRoute: ApiAtlasDotjsonRoute,
+  ApiAttentionDotcsvRoute: ApiAttentionDotcsvRoute,
   ApiCronRoute: ApiCronRoute,
+  ApiDayDotjsonRoute: ApiDayDotjsonRoute,
   ApiPublishRoute: ApiPublishRoute,
   ApiThreadDotjsonRoute: ApiThreadDotjsonRoute,
   ESlugRoute: ESlugRoute,

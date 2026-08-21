@@ -243,6 +243,7 @@ export type PulsePayload = {
   licenseSplit: Dashboard["licenseSplit"];
   citedAa?: Record<string, CitedMark>;
   changelog?: ChangelogEntry[];
+  iraDay?: import("../ira/day").DayRecord;
 };
 
 

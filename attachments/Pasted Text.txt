@@ -1,0 +1,18 @@
+Clean slate. Here's what I'd actually do.
+
+**Reposition from ranking to measuring.** Right now it claims to rank AI tools, which puts it against Artificial Analysis, LMArena, and every directory on the internet — and 42% of the score is borrowed from those rankings anyway, so it's a lagging echo of its own competitors. Drop the editorial prior entirely and make one narrow honest claim: *this measures attention, not quality.* Nobody owns "what is the field actually looking at right now." That lane is empty, the data is already being collected, and it stops inviting the comparison it loses.
+
+**The delta is the product, not the index.** No one revisits a leaderboard. People revisit movement. Gainers/fades and Drift are buried below the fold — they should be the homepage. Lead with what moved and why, rank second.
+
+**The moat is the time series.** Publish every daily snapshot to a public repo, one commit a day, JSON and CSV. Attention data can't be backfilled — a year of clean daily snapshots is something nobody else has and anyone can cite. Honestly the dataset repo is worth more than the site, and it earns stars, citations, and links while you sleep.
+
+**Then two launches, in this order:**
+
+1. *The architecture post.* "A daily-updating AI index for $0.18 a month, no paid APIs." Devs love a cheap elegant pipeline, and this one genuinely is. Aim it at HN.
+2. *A finding.* One surprising chart from your own data — something collapsing or spiking that nobody noticed. Publish the finding; the site is supporting material.
+
+Never launch it as a directory. "Another AI tools list" gets flamed on sight. Findings get upvoted.
+
+**Then the compounding stuff:** entity pages are 101 long-tail SEO surfaces, but only if each has a chart nobody else can show. Put an embed button on every one — embedded charts are how Artificial Analysis ended up in everyone's slides. And ship one short weekly post; rankings don't earn return visits, cadence does.
+
+**Two honest constraints.** Fix 3/6 sources first — a site whose pitch is "every number is sourced" running at half coverage fails on its own terms. And the value curve here is brutal: this is worth little at month one and a lot at month twelve, because the asset is uninterrupted history. A dataset with gaps is worth a fraction of one without. So the real question isn't whether it's a good idea — it's whether the pulse runs every day for a year.

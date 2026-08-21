@@ -1,5 +1,6 @@
 import { DROPS, WEEK_LETTER } from "@/lib/catalog/ira";
 import type { ChangelogEntry } from "@/lib/catalog/types";
+import type { DayRecord } from "@/lib/ira/day";
 import { SITE, absoluteUrl } from "@/lib/site";
 
 export type ThreadPost = { text: string };
@@ -74,14 +75,26 @@ ${drops}
 `;
 }
 
-/** Signed letter if current; otherwise an unsigned draft from new receipts. */
-export function letterFor(changelog: ChangelogEntry[]): {
+/** Founding letter until a newer machine day exists. Machine letters are never human-signed. */
+export function letterFor(
+  changelog: ChangelogEntry[],
+  iraDay?: DayRecord,
+): {
   weekOf: string;
   title: string;
   dek: string;
   body: string;
   signed: boolean;
 } {
+  if (iraDay && iraDay.day > WEEK_LETTER.weekOf) {
+    return {
+      weekOf: iraDay.day,
+      title: iraDay.letter.title,
+      dek: iraDay.letter.dek,
+      body: iraDay.letter.body,
+      signed: false,
+    };
+  }
   const newest = changelog[0]?.at?.slice(0, 10) ?? "";
   if (newest && newest > WEEK_LETTER.weekOf) {
     const lines = changelog
@@ -99,8 +112,8 @@ export function letterFor(changelog: ChangelogEntry[]): {
   return { ...WEEK_LETTER, signed: true };
 }
 
-export function composePackage(changelog: ChangelogEntry[]): PublishPackage {
-  const letter = letterFor(changelog);
+export function composePackage(changelog: ChangelogEntry[], iraDay?: DayRecord): PublishPackage {
+  const letter = letterFor(changelog, iraDay);
   const receipts = changelog.slice(0, 10).map((c) => ({
     title: c.title,
     at: c.at.slice(0, 10),

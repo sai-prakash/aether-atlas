@@ -4,6 +4,7 @@ import { PULSE } from "./budget";
 import { fetchAllSources, type RawSignal } from "./sources";
 import { fetchCitedAa } from "./cited";
 import { materializePulse } from "./pulse";
+import { closeIraDay } from "@/lib/ira/close";
 
 export async function lastSuccessfulRun(sql: Sql): Promise<string | null> {
   const rows = await sql<{ finished_at: string | null }>`
@@ -97,7 +98,12 @@ export async function runIngest(
         [JSON.stringify(allSources), JSON.stringify(stats), runId],
       );
     }
-    await materializePulse(sql, { citedAa: cited.ranks });
+    const pulse = await materializePulse(sql, { citedAa: cited.ranks });
+    try {
+      await closeIraDay(sql, pulse);
+    } catch {
+      // ira_days may not be migrated yet — pulse still stands.
+    }
     return { sources: allSources, inserted, updated: 0 };
   } catch (err) {
     const message = err instanceof Error ? err.message : "ingest failed";

@@ -35,7 +35,7 @@ const MORE = [
   { to: "/drift", label: "Weather", icon: Activity },
   { to: "/distribute", label: "Distribute", icon: Send },
   { to: "/signals", label: "Signals", icon: Radio },
-  { to: "/papers", label: "Papers", icon: BookOpen },
+  { to: "/archive", label: "Archive", icon: BookOpen },
   { to: "/methods", label: "Methods", icon: Layers },
   { to: "/compare", label: "Compare", icon: GitCompare },
 ] as const;

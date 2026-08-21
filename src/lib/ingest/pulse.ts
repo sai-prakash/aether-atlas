@@ -169,7 +169,7 @@ async function ingestStatus(sql: Sql): Promise<IngestStatus> {
 /** Rebuild the single-row desk snapshot from current tables. Called after a pulse, not on page views. */
 export async function materializePulse(
   sql: Sql,
-  extra?: { citedAa?: Record<string, CitedMark> },
+  extra?: { citedAa?: Record<string, CitedMark>; iraDay?: PulsePayload["iraDay"] },
 ): Promise<PulsePayload> {
   const now = Date.now();
   const since45 = new Date(now - PULSE.snapshotDays * 86_400_000).toISOString();
@@ -253,7 +253,18 @@ export async function materializePulse(
     licenseSplit: agg.licenseSplit,
     citedAa: extra?.citedAa ?? {},
     changelog,
+    iraDay: extra?.iraDay,
   };
+
+  if (!payload.iraDay) {
+    try {
+      const dayRows = await sql<{ payload: unknown }>`
+        select payload from ira_days order by day desc limit 1`;
+      if (dayRows[0]) payload.iraDay = dayRows[0].payload as PulsePayload["iraDay"];
+    } catch {
+      // ira_days not migrated yet
+    }
+  }
 
   try {
     await writePulse(sql, payload);

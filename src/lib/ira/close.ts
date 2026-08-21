@@ -1,0 +1,79 @@
+import type { Sql } from "@/lib/db";
+import type { PulsePayload } from "@/lib/catalog/types";
+import { patchPulse } from "@/lib/ingest/pulse";
+import { buildDay, type DayRecord } from "./day";
+
+export async function closeIraDay(sql: Sql, pulse: PulsePayload): Promise<DayRecord> {
+  const unresolvedRows = await sql<{ n: number }>`
+    select count(*)::int as n from signals
+    where entity_id = ''
+      and coalesce(published_at, ingested_at) >= now() - interval '24 hours'`;
+  const day = buildDay(pulse, Number(unresolvedRows[0]?.n ?? 0));
+
+  await sql.query(
+    `insert into ira_days (day, payload, cores, gap, letter, built_at)
+     values ($1::date, $2, $3, $4, $5, $6)
+     on conflict (day) do update set
+       payload = excluded.payload,
+       cores = excluded.cores,
+       gap = excluded.gap,
+       letter = excluded.letter,
+       built_at = excluded.built_at`,
+    [day.day, JSON.stringify(day), day.cores.live, day.gap, day.letter.body, day.builtAt],
+  );
+
+  try {
+    await patchPulse(sql, { iraDay: day });
+  } catch {
+    // Pulse extra is optional.
+  }
+
+  await pushArchive(day).catch(() => undefined);
+  return day;
+}
+
+export async function getIraDay(sql: Sql, day: string): Promise<DayRecord | null> {
+  const rows = await sql<{ payload: unknown }>`
+    select payload from ira_days where day = ${day}::date limit 1`;
+  if (!rows[0]) return null;
+  return rows[0].payload as DayRecord;
+}
+
+export async function listIraDays(sql: Sql, limit = 90): Promise<DayRecord[]> {
+  const rows = await sql<{ payload: unknown }>`
+    select payload from ira_days order by day desc limit ${limit}`;
+  return rows.map((r) => r.payload as DayRecord);
+}
+
+/** Optional public dataset commit. Never fail the pulse if GitHub is dark. */
+async function pushArchive(day: DayRecord): Promise<void> {
+  const token = process.env.ARCHIVE_GITHUB_TOKEN?.trim() || process.env.GITHUB_TOKEN?.trim();
+  const repo = process.env.ARCHIVE_REPO?.trim() || "sai-prakash/aether-atlas";
+  if (!token) return;
+  const [owner, name] = repo.split("/");
+  if (!owner || !name) return;
+  const path = `data/days/${day.day}.json`;
+  const content = Buffer.from(`${JSON.stringify(day, null, 2)}\n`, "utf8").toString("base64");
+  let sha: string | undefined;
+  const get = await fetch(`https://api.github.com/repos/${owner}/${name}/contents/${path}`, {
+    headers: { authorization: `Bearer ${token}`, accept: "application/vnd.github+json" },
+  });
+  if (get.ok) {
+    const body = (await get.json()) as { sha?: string };
+    sha = body.sha;
+  }
+  await fetch(`https://api.github.com/repos/${owner}/${name}/contents/${path}`, {
+    method: "PUT",
+    headers: {
+      authorization: `Bearer ${token}`,
+      accept: "application/vnd.github+json",
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      message: `data: ${day.day}${day.gap ? " GAP" : ""}`,
+      content,
+      sha,
+      branch: process.env.ARCHIVE_BRANCH?.trim() || "main",
+    }),
+  });
+}
