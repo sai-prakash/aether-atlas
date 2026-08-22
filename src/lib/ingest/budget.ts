@@ -16,7 +16,7 @@ export const PULSE = {
   ingestRunDays: 30,
   fetchBudgetMs: 6000,
   /** Bump to force one ingest after fallback/parser changes. */
-  ingestRev: 7,
+  ingestRev: 8,
 } as const;
 
 export type CostLine = {

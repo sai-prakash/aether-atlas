@@ -55,9 +55,12 @@ export async function claimPulse(sql: Sql, minIntervalMs: number): Promise<Claim
   }
 
   const last = await lastSuccessfulRun(sql);
-  if (last) {
-    const t = new Date(last).getTime();
-    if (!Number.isNaN(t) && Date.now() - t < minIntervalMs) {
+  if (last && minIntervalMs > 0) {
+    const lastAt = new Date(last).getTime();
+    const lastDay = new Date(last).toISOString().slice(0, 10);
+    const today = new Date().toISOString().slice(0, 10);
+    // Never skip across a UTC date — that is how 22 Aug was lost.
+    if (lastDay === today && !Number.isNaN(lastAt) && Date.now() - lastAt < minIntervalMs) {
       return { ok: false, reason: "fresh", last };
     }
   }

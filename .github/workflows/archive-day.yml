@@ -1,5 +1,6 @@
-# Commits today's attention snapshot. No PAT. GITHUB_TOKEN is enough.
-# Vercel cron at 06:15 UTC closes the day; this runs 30 minutes later.
+# Commits closed days from the public index. No PAT. GITHUB_TOKEN is enough.
+# Vercel cron at 06:15 UTC closes the day; this runs 30 minutes later — and
+# also backfills any closed day the repo is missing (late pulse, not zeros).
 name: archive-day
 on:
   schedule:
@@ -12,30 +13,46 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Pull UTC day snapshot
+      - name: Pull closed snapshots
         env:
           DESK: https://aether-atlas-eight.vercel.app
         run: |
           set -euo pipefail
           mkdir -p data/days
-          DAY="$(date -u +%F)"
-          CODE="$(curl -sS -o /tmp/day.json -w '%{http_code}' "$DESK/api/day.json?d=${DAY}")"
-          if [ "$CODE" != "200" ]; then
-            echo "no snapshot for ${DAY} (http ${CODE}) — leaving a hole, not zeros"
-            exit 0
-          fi
+          curl -sS -o /tmp/index.json "$DESK/api/day.json"
           python3 - <<'PY'
-          import json
-          raw = open("/tmp/day.json").read()
-          json.loads(raw)
-          open("data/days/" + __import__("datetime").datetime.utcnow().strftime("%Y-%m-%d") + ".json", "w").write(raw if raw.endswith("\n") else raw + "\n")
+          import json, os, subprocess, urllib.request
+          desk = os.environ["DESK"]
+          idx = json.load(open("/tmp/index.json"))
+          days = [row["day"] for row in idx.get("days") or []]
+          if not days:
+              print("index empty — leaving holes, not zeros")
+              raise SystemExit(0)
+          wrote = []
+          for day in days:
+              dest = f"data/days/{day}.json"
+              url = f"{desk}/api/day.json?d={day}"
+              req = urllib.request.Request(url)
+              try:
+                  with urllib.request.urlopen(req, timeout=30) as res:
+                      raw = res.read().decode()
+              except Exception as e:
+                  print(f"{day} skip ({e}) — hole, not zeros")
+                  continue
+              json.loads(raw)
+              if not raw.endswith("\n"):
+                  raw += "\n"
+              open(dest, "w").write(raw)
+              wrote.append(dest)
+              print(f"wrote {dest}")
+          open("/tmp/wrote.txt", "w").write("\n".join(wrote))
           PY
           git config user.name "Ira Prior"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add "data/days/${DAY}.json"
+          git add data/days
           if git diff --cached --quiet; then
             echo "unchanged"
             exit 0
           fi
-          git commit -m "data: ${DAY}"
+          git commit -m "data: closed days"
           git push

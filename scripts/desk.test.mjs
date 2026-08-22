@@ -127,3 +127,15 @@ test("a false quiet day is the only snapshot allowed to be rewritten", () => {
   assert.equal(needsRepair({ gap: false, movers: [] }, { gap: false, movers: [{ name: "Qwen" }] }), true);
   assert.equal(needsRepair({ gap: false, movers: [{ name: "Qwen" }] }, { gap: false, movers: [{ name: "Grok" }] }), false);
 });
+
+test("a new UTC day is never skipped as fresh", () => {
+  const skip = (lastIso, nowIso, minMs) => {
+    const lastDay = lastIso.slice(0, 10);
+    const today = nowIso.slice(0, 10);
+    if (lastDay !== today) return false;
+    return Date.parse(nowIso) - Date.parse(lastIso) < minMs;
+  };
+  const min = 20 * 3600 * 1000;
+  assert.equal(skip("2026-08-21T20:05:43.294Z", "2026-08-22T06:15:00.000Z", min), false);
+  assert.equal(skip("2026-08-22T06:16:00.000Z", "2026-08-22T08:00:00.000Z", min), true);
+});
