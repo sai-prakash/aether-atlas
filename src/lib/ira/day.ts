@@ -13,6 +13,7 @@ export type DayMover = {
 export type DayRecord = {
   day: string;
   builtAt: string;
+  schema: number;
   cores: { live: number; needed: number; status: string };
   sources: Pick<SourceStatus, "source" | "ok" | "count">[];
   gap: boolean;
@@ -76,23 +77,32 @@ export function movement(
   return { movers, fades };
 }
 
+export const DAY_SCHEMA = 2;
+
 export function buildDay(
   pulse: PulsePayload,
   unresolved: number,
   prevById?: Record<string, number>,
+  dayCounts?: Record<string, number>,
 ): DayRecord {
   const day = utcDay(pulse.builtAt);
   const health = indexHealth(pulse.ingest.sources ?? []);
   const gap = health.status !== "live";
-  const { movers, fades } = gap ? { movers: [], fades: [] } : movement(pulse.entities, prevById);
-  const attention = pulse.entities
+  const counted = dayCounts
+    ? pulse.entities.map((e) => ({ ...e, mentions24h: dayCounts[e.id] ?? 0 }))
+    : pulse.entities;
+  const { movers, fades } = gap ? { movers: [], fades: [] } : movement(counted, prevById);
+  const attention = counted
     .filter((e) => e.mentions24h > 0)
     .map((e) => ({ id: e.id, mentions: e.mentions24h }));
-  const receipts = (pulse.changelog ?? []).slice(0, 8).map((c: ChangelogEntry) => ({
-    at: c.at.slice(0, 10),
-    title: c.title,
-    entityId: c.entityId,
-  }));
+  const receipts = (pulse.changelog ?? [])
+    .filter((c) => c.at.slice(0, 10) === day)
+    .slice(0, 8)
+    .map((c: ChangelogEntry) => ({
+      at: c.at.slice(0, 10),
+      title: c.title,
+      entityId: c.entityId,
+    }));
   const citedAa = Object.entries(pulse.citedAa ?? {}).map(([id, m]) => ({ id, label: m.label }));
   const sources = (pulse.ingest.sources ?? []).map((s) => ({
     source: s.source,
@@ -102,6 +112,7 @@ export function buildDay(
   const record: DayRecord = {
     day,
     builtAt: pulse.builtAt,
+    schema: DAY_SCHEMA,
     cores: { live: health.live, needed: LIVE_NEEDED, status: health.status },
     sources,
     gap,
@@ -147,16 +158,17 @@ export function letterFrom(day: DayRecord): DayRecord["letter"] {
     .slice(0, 5)
     .map((r) => `${r.at} · ${r.title}`)
     .join("\n");
-  const aa = day.citedAa.slice(0, 4).map((a) => a.label).join("; ");
+  const dropped = day.receipts.some((r) => /^dropped /i.test(r.title));
 
   const lines = [
-    `I am ${SITE.editor}. These are mention counts on a working set of ${day.n}, not quality.`,
+    `I am ${SITE.editor}. These are mention counts published on ${day.day}, on a working set of ${day.n}, not quality.`,
     up ? `What the field looked at: ${up}.` : "No name cleared the mention floor today.",
     down ? `Cooling: ${down}.` : "",
-    aa ? `Cited, not absorbed: ${aa}.` : "",
     rec ? `Receipts:\n${rec}` : "No new dated receipts.",
     `Unresolved titles (not on the map): ${day.unresolved}. I do not auto-add names.`,
-    `Cores ${day.cores.live}/${day.cores.needed}. I did not add or drop names today.`,
+    dropped
+      ? `I dropped names today. The set is still ${day.n}.`
+      : `Cores ${day.cores.live}/${day.cores.needed}. I did not add or drop names today.`,
     `— ${SITE.editor}, machine letter, ${day.day}`,
   ].filter(Boolean);
 

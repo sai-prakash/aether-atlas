@@ -122,10 +122,32 @@ test("first closed day uses mention counts, not intra-day spark deltas", () => {
 });
 
 test("a false quiet day is the only snapshot allowed to be rewritten", () => {
-  const needsRepair = (existing, next) =>
-    !existing.gap && !next.gap && existing.movers.length === 0 && next.movers.length > 0;
+  const DAY_SCHEMA = 2;
+  const needsRepair = (existing, next) => {
+    if ((existing.schema ?? 1) < DAY_SCHEMA && existing.day === next.day) return true;
+    if (existing.gap || next.gap) return false;
+    return existing.movers.length === 0 && next.movers.length > 0;
+  };
   assert.equal(needsRepair({ gap: false, movers: [] }, { gap: false, movers: [{ name: "Qwen" }] }), true);
-  assert.equal(needsRepair({ gap: false, movers: [{ name: "Qwen" }] }, { gap: false, movers: [{ name: "Grok" }] }), false);
+  assert.equal(
+    needsRepair({ gap: false, movers: [{ name: "Qwen" }], schema: 2, day: "2026-08-22" }, { gap: false, movers: [{ name: "Grok" }], day: "2026-08-22" }),
+    false,
+  );
+  assert.equal(
+    needsRepair({ gap: false, movers: [{ name: "Qwen" }], schema: 1, day: "2026-08-22" }, { gap: false, movers: [{ name: "Qwen" }], day: "2026-08-22" }),
+    true,
+  );
+});
+
+test("daily letter receipts are that UTC day only", () => {
+  const day = "2026-08-22";
+  const changelog = [
+    { at: "2026-08-21", title: "Dropped Bolt" },
+    { at: "2026-08-22", title: "Only today" },
+    { at: "2026-08-03", title: "Qwen ships" },
+  ];
+  const receipts = changelog.filter((c) => c.at.slice(0, 10) === day);
+  assert.deepEqual(receipts.map((r) => r.title), ["Only today"]);
 });
 
 test("a new UTC day is never skipped as fresh", () => {

@@ -1,28 +1,39 @@
 import type { Sql } from "@/lib/db";
 import type { PulsePayload } from "@/lib/catalog/types";
 import { patchPulse } from "@/lib/ingest/pulse";
-import { buildDay, type DayRecord } from "./day";
+import { buildDay, DAY_SCHEMA, type DayRecord } from "./day";
 
 function previousUtcDate(day: string): string {
   return new Date(Date.parse(`${day}T00:00:00Z`) - 86_400_000).toISOString().slice(0, 10);
 }
 
-/** One rewrite: a false quiet day that later has real mentions. Then freeze. */
+/** Rewrite only: false quiet, or today's row still on the rolling-24h schema. */
 export function needsRepair(existing: DayRecord, next: DayRecord): boolean {
+  if ((existing.schema ?? 1) < DAY_SCHEMA && existing.day === next.day) return true;
   if (existing.gap || next.gap) return false;
   return existing.movers.length === 0 && next.movers.length > 0;
 }
 
 export async function closeIraDay(sql: Sql, pulse: PulsePayload): Promise<DayRecord> {
+  const today = pulse.builtAt.slice(0, 10);
+  const end = new Date(Date.parse(`${today}T00:00:00Z`) + 86_400_000).toISOString();
+  const start = `${today}T00:00:00.000Z`;
   const unresolvedRows = await sql<{ n: number }>`
     select count(*)::int as n from signals
     where entity_id = ''
-      and coalesce(published_at, ingested_at) >= now() - interval '24 hours'`;
-  const today = pulse.builtAt.slice(0, 10);
+      and coalesce(published_at, ingested_at) >= ${start}::timestamptz
+      and coalesce(published_at, ingested_at) < ${end}::timestamptz`;
+  const mentionRows = await sql<{ entity_id: string; n: number }>`
+    select entity_id, count(*)::int as n from signals
+    where entity_id <> ''
+      and coalesce(published_at, ingested_at) >= ${start}::timestamptz
+      and coalesce(published_at, ingested_at) < ${end}::timestamptz
+    group by entity_id`;
+  const dayCounts = Object.fromEntries(mentionRows.map((r) => [r.entity_id, r.n]));
   const existing = await getIraDay(sql, today);
   const yesterday = await getIraDay(sql, previousUtcDate(today));
   const prevById = Object.fromEntries((yesterday?.attention ?? []).map((a) => [a.id, a.mentions]));
-  const day = buildDay(pulse, Number(unresolvedRows[0]?.n ?? 0), prevById);
+  const day = buildDay(pulse, Number(unresolvedRows[0]?.n ?? 0), prevById, dayCounts);
 
   if (existing && !needsRepair(existing, day)) {
     try {

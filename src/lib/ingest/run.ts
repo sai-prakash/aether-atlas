@@ -159,8 +159,7 @@ async function upsertSignals(sql: Sql, signals: RawSignal[]): Promise<number> {
          title = excluded.title,
          snippet = excluded.snippet,
          score = excluded.score,
-         entity_id = case when excluded.entity_id <> '' then excluded.entity_id else signals.entity_id end,
-         ingested_at = now()
+         entity_id = case when excluded.entity_id <> '' then excluded.entity_id else signals.entity_id end
        returning id`,
       values,
     );
