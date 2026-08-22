@@ -173,10 +173,15 @@ export function letterFrom(day: DayRecord): DayRecord["letter"] {
   ].filter(Boolean);
 
   const lead = day.movers[0];
+  const cool = day.fades[0];
   return {
     mode: "machine",
-    title: lead ? `${lead.name} led mentions — ${day.day}` : `Quiet day — ${day.day}`,
-    dek: `Attention, not quality. ${day.cores.live} core firehoses.`,
+    title: lead
+      ? `${lead.name} led mentions — ${day.day}`
+      : cool
+        ? `${cool.name} cooled — ${day.day}`
+        : `Quiet day — ${day.day}`,
+    dek: `Published ${day.day}. Attention, not quality. ${day.cores.live} core firehoses.`,
     body: lines.join("\n\n"),
   };
 }

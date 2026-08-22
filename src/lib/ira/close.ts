@@ -10,6 +10,9 @@ function previousUtcDate(day: string): string {
 /** Rewrite only: false quiet, or today's row still on the rolling-24h schema. */
 export function needsRepair(existing: DayRecord, next: DayRecord): boolean {
   if ((existing.schema ?? 1) < DAY_SCHEMA && existing.day === next.day) return true;
+  if (existing.day === next.day && existing.letter?.title?.startsWith("Quiet") && !next.letter.title.startsWith("Quiet")) {
+    return true;
+  }
   if (existing.gap || next.gap) return false;
   return existing.movers.length === 0 && next.movers.length > 0;
 }
